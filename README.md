@@ -109,7 +109,6 @@ primera_fila = matriz[0, :] # [1, 2, 3]
 
 El método .reshape() te permite cambiar la forma (filas y columnas) de un array sin modificar sus datos internos. La única condición obligatoria es que el tamaño total (size) debe mantenerse igual.
 
-
 ````
 vector = np.array([1, 2, 3, 4, 5, 6]) # Tamaño 6
 matriz_nueva = vector.reshape((2, 3)) # Transforma a 2 filas y 3 columnas
