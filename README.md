@@ -500,3 +500,69 @@ En conclusión, Seaborn es la herramienta que convierte los datos crudos de NumP
 <hr>
 
 
+
+## ¿Qué es Pyplot?
+
+Pyplot es un módulo interno de la librería Matplotlib que funciona como una "consola de mandos" simplificada para dibujar gráficos en Python. Si Matplotlib es una gigantesca fábrica de herramientas visuales, Pyplot es el interruptor principal que te permite pintar líneas, barras o puntos en la pantalla utilizando comandos muy cortos, directos y secuenciales.
+Casi nunca verás escrito import matplotlib; la convención o norma universal en el mundo de la programación es importar directamente este módulo bajo el alias plt mediante la frase:
+````
+import matplotlib.pyplot as plt.
+````
+
+### La conexión perfecta: ¿Por qué Pyplot y NumPy trabajan juntos?
+
+En la ciencia de datos, NumPy es el cerebro matemático y Pyplot es el brazo con el pincel. Su relación se basa en un flujo de trabajo lógico y ultra rápido:
+1. NumPy fabrica las coordenadas: Si quieres dibujar una curva, una trayectoria o una distribución de datos, NumPy calcula los miles de puntos numéricos necesarios (las posiciones de los ejes X e Y) en una milésima de segundo.
+2. Pyplot lee los bloques de NumPy: Pyplot está programado para entender perfectamente los arrays de NumPy. No necesitas decirle que recorra los números uno a uno; simplemente le pasas el bloque y Pyplot sabe exactamente dónde ubicar cada punto en el lienzo.
+3. Pintado secuencial: Pyplot funciona como un "historial de capas". Cada comando que escribes añade un elemento nuevo (una línea, un título, una cuadrícula) sobre el mismo lienzo antes de mostrar el resultado final.
+
+### ¿Cómo funciona en la práctica? (El concepto de "Lienzo Actual")
+
+Para entender Pyplot de forma sencilla, imagina que tienes un pintor frente a un caballete. Cada línea de código es una orden directa para ese pintor:
+• plt.figure(): "Pon un lienzo en blanco sobre el caballete".
+• plt.plot(x, y): "Toma las coordenadas X e Y de NumPy y traza una línea azul que las una".
+• plt.title("Mi gráfico"): "Escribe este título con letras grandes en la parte de arriba".
+• plt.show(): "Da un paso atrás y muéstrale el cuadro terminado al mundo". (Este comando abre la ventana visual en tu ordenador).
+
+Ejemplo práctico: Cómo cooperan en el código real
+
+Mira lo intuitivo que es generar una función matemática con NumPy y dibujarla paso a paso usando las capas de Pyplot:
+````
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. NumPy calcula los números (100 puntos espaciados entre 0 y 20)
+x = np.linspace(0, 20, 100)
+y = np.sqrt(x)  # Calcula la raíz cuadrada de cada número de golpe
+
+# 2. Pyplot empieza a añadir capas al gráfico secuencialmente
+plt.plot(x, y, color="green", linewidth=2, label="Crecimiento") # Capa 1: La línea
+
+plt.title("Gráfico de Raíz Cuadrada con Pyplot")                 # Capa 2: El título
+plt.xlabel("Eje X (Valores de entrada)")                         # Capa 3: Etiqueta horizontal
+plt.ylabel("Eje Y (Resultado)")                                 # Capa 4: Etiqueta vertical
+plt.grid(True)                                                  # Capa 5: Una cuadrícula de fondo
+plt.legend()                                                    # Capa 6: El cuadro de leyenda
+
+# 3. Ordenamos a Pyplot que abra la ventana y renderice el dibujo
+plt.show()
+````
+
+Los comandos más importantes de Pyplot que debes conocer:
+
+* Para el tipo de gráfico:
+	* plt.plot(): Dibuja gráficos de líneas continuas (tendencias).
+	* plt.scatter(): Dibuja nubes de puntos sueltos (dispersión).
+	* plt.bar(): Crea diagramas de barras verticales.
+	* plt.hist(): Construye histogramas automáticos para ver distribuciones.
+* Para adornar y etiquetar:
+	* plt.xlim() / plt.ylim(): Configuran los límites mínimos y máximos de los ejes (por ejemplo, forzar a que el gráfico empiece estrictamente en el número 0).
+	* plt.savefig("mi_grafico.png"): Guarda el lienzo actual en un archivo de imagen en tu ordenador sin necesidad de abrir la ventana interactiva.
+
+En conclusión, Pyplot es la interfaz amigable que vuelve sencillo lo complejo, permitiendo que interactúes con la enorme maquinaria gráfica de Matplotlib mediante instrucciones cortas, lógicas y estructuradas sobre tus datos de NumPy.
+
+
+
+<hr>
+
+
