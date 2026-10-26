@@ -519,10 +519,10 @@ En la ciencia de datos, NumPy es el cerebro matemático y Pyplot es el brazo con
 ### ¿Cómo funciona en la práctica? (El concepto de "Lienzo Actual")
 
 Para entender Pyplot de forma sencilla, imagina que tienes un pintor frente a un caballete. Cada línea de código es una orden directa para ese pintor:
-• plt.figure(): "Pon un lienzo en blanco sobre el caballete".
-• plt.plot(x, y): "Toma las coordenadas X e Y de NumPy y traza una línea azul que las una".
-• plt.title("Mi gráfico"): "Escribe este título con letras grandes en la parte de arriba".
-• plt.show(): "Da un paso atrás y muéstrale el cuadro terminado al mundo". (Este comando abre la ventana visual en tu ordenador).
+* plt.figure(): "Pon un lienzo en blanco sobre el caballete".
+* plt.plot(x, y): "Toma las coordenadas X e Y de NumPy y traza una línea azul que las una".
+* plt.title("Mi gráfico"): "Escribe este título con letras grandes en la parte de arriba".
+* plt.show(): "Da un paso atrás y muéstrale el cuadro terminado al mundo". (Este comando abre la ventana visual en tu ordenador).
 
 Ejemplo práctico: Cómo cooperan en el código real
 
