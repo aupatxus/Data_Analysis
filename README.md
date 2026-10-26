@@ -248,6 +248,7 @@ Casi nadie usa NumPy de forma aislada; es la "pieza de LEGO" sobre la que se con
 * Pandas (la librería para manejar tablas de datos y estadísticas) utiliza NumPy por debajo.
 * Matplotlib y Seaborn (para dibujar gráficos y mapas) necesitan los datos en formato NumPy.
 * Scikit-learn, TensorFlow y PyTorch (los cerebros detrás de la Inteligencia Artificial y el Machine Learning) traducen imágenes, textos y vídeos en arrays de NumPy para poder aprender de ellos.
+
 En conclusión, NumPy no es solo una herramienta de cálculo; es el traductor universal que convierte el caos de datos del mundo real en estructuras de números perfectamente ordenadas, eficientes y ultra rápidas para que tu ordenador pueda analizarlas.
 
 
@@ -357,11 +358,12 @@ plt.show()
 ¿Qué tipos de gráficos puede hacer?
 
 Matplotlib es prácticamente infinito, pero sus herramientas más utilizadas son:
-* plt.plot(): Gráficos de líneas (ideales para ver cómo cambia algo con el tiempo).
-* plt.bar(): Gráficos de barras (ideales para comparar categorías como ventas por mes).
-* plt.scatter(): Gráficos de dispersión o nubes de puntos (ideales para ver si dos variables se relacionan entre sí).
+* plt.plot(): Gráficos de líneas (ideales para ver cómo cambia algo con el tiempo).   
+* plt.bar(): Gráficos de barras (ideales para comparar categorías como ventas por mes).   
+* plt.scatter(): Gráficos de dispersión o nubes de puntos (ideales para ver si dos variables se relacionan entre sí).   
 * plt.hist(): Histogramas (ideales para ver cómo se distribuyen tus datos numéricos).
-En conclusión, Matplotlib toma el poder numérico puro de NumPy y lo traduce en un idioma visual que cualquier ser humano puede comprender de un solo vistazo en un informe, presentación o artículo científico.
+
+En conclusión, Matplotlib toma el poder numérico puro de NumPy y lo traduce en un idioma visual que cualquier ser humano puede comprender de un solo vistazo en un informe, presentación o artículo científico.   
 
 
 
@@ -424,9 +426,10 @@ print(df["Ingresos_Totales"].describe())
 ````
 Las herramientas más utilizadas de Pandas:
 
-• pd.read_csv() / pd.read_excel(): Abren archivos externos gigantescos en una sola línea de código.
-• df.dropna() / df.fillna(): Encuentran y eliminan (o rellenan) las casillas vacías o con errores en la tabla.
-• df.groupby(): Agrupan los datos por categorías (por ejemplo, agrupar las ventas por "País" o por "Mes") para sacar resúmenes automáticos.
+* pd.read_csv() / pd.read_excel(): Abren archivos externos gigantescos en una sola línea de código.
+* df.dropna() / df.fillna(): Encuentran y eliminan (o rellenan) las casillas vacías o con errores en la tabla.
+* df.groupby(): Agrupan los datos por categorías (por ejemplo, agrupar las ventas por "País" o por "Mes") para sacar resúmenes automáticos.
+
 En conclusión, Pandas humaniza el poder matemático de NumPy, dándote una interfaz cómoda, estructurada y lógica para limpiar y exprimir el valor de cualquier base de datos por compleja que sea.
 
 
@@ -486,9 +489,10 @@ plt.show()
 ````
 Gráficos estrella de Seaborn que debes conocer:
 
-• sns.heatmap(): El famoso Mapa de Calor. Convierte una tabla de números en una cuadrícula de colores (los números altos brillan y los bajos se oscurecen). Es el rey para ver qué variables están correlacionadas.
-• sns.boxplot(): Diagramas de caja. Ideal para ver resúmenes estadísticos (promedios, máximos y mínimos) de varias categorías lado a lado.
-• sns.pairplot(): Hace una matriz de gráficos. Si le pasas una tabla con 5 columnas, te dibuja de golpe un mapa de cuadrículas cruzando todas las columnas entre sí para que descubras patrones ocultos al instante.
+* sns.heatmap(): El famoso Mapa de Calor. Convierte una tabla de números en una cuadrícula de colores (los números altos brillan y los bajos se oscurecen). Es el rey para ver qué variables están correlacionadas.
+* sns.boxplot(): Diagramas de caja. Ideal para ver resúmenes estadísticos (promedios, máximos y mínimos) de varias categorías lado a lado.
+* sns.pairplot(): Hace una matriz de gráficos. Si le pasas una tabla con 5 columnas, te dibuja de golpe un mapa de cuadrículas cruzando todas las columnas entre sí para que descubras patrones ocultos al instante.
+
 En conclusión, Seaborn es la herramienta que convierte los datos crudos de NumPy y Pandas en historias visuales atractivas, permitiendo que cualquier analista descubra tendencias y presente sus conclusiones de una forma clara y profesional.
 
 
