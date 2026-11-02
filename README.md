@@ -575,14 +575,14 @@ En conclusión, Pyplot es la interfaz amigable que vuelve sencillo lo complejo, 
 https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
 
 
-1. Creación de DataFrames
+## 1. Creación de DataFrames
 
 Permite definir estructuras de datos bidimensionales con etiquetas en filas y columnas. 
 * Por columnas: df = pd.DataFrame({"a":, "b": [7, 8, 9]}, index=[1, 2, 3]) -> Especifica valores columna por columna.
 * Por filas: df = pd.DataFrame([[4, 7, 10], [5, 8, 11]], index=[1, 2], columns=['a', 'b', 'c']) -> Especifica valores fila por fila.
 * Con MultiIndex (Índices jerárquicos): df = pd.DataFrame(data, index=pd.MultiIndex.from_tuples([('d', 1), ('d', 2)], names=['n', 'v'])). 
 
-2. Remodelación de Datos (Reshaping)
+## 2. Remodelación de Datos (Reshaping)
 
 Cambia la disposición, ordenación, índices y nombres de las tablas. 
 * pd.melt(df): Reúne columnas y las transforma en filas (unpivot).
@@ -594,7 +594,8 @@ Cambia la disposición, ordenación, índices y nombres de las tablas.
 * df.reset_index(): Restablece el índice a números secuenciales, moviendo el índice anterior a una columna.
 * df.rename(columns={'antiguo': 'nuevo'}): Renombra las columnas.
 * df.drop(columns=['col1', 'col2']): Elimina las columnas indicadas. 
-3. Filtrado y Subconjuntos (Subsets)
+
+## 3. Filtrado y Subconjuntos (Subsets)
 
 Selección de observaciones (filas), variables (columnas) o elementos específicos. 
 
@@ -621,14 +622,14 @@ Subconjuntos combinados (Filas y Columnas)
 * df.loc[df['a'] > 10, ['a', 'c']]: Selecciona las filas que cumplen la condición, y solo las columnas 'a' y 'c'.
 * df.at[4, 'A'] / df.iat[1, 2]: Accede de manera rápida a un único valor por etiqueta o por posición de índice, respectivamente. 
 
-4. Lógica y Expresiones Regulares en Python/Pandas
+## 4. Lógica y Expresiones Regulares en Python/Pandas
 
 * Operadores lógicos: < (menor), > (mayor), == (igual), != (diferente), <= , >=.
 * Funciones lógicas: df.column.isin(valores) (pertenencia a grupo), pd.isnull(obj) (es NaN), pd.notnull(obj) (no es NaN).
 * Conectores lógicos: & (and), | (or), ~ (not), ^ (xor), df.any() (alguno), df.all() (todos).
 * Ejemplos Regex: '\.' (contiene un punto), 'Length$' (termina en 'Length'), '^Sepal' (empieza por 'Sepal'), '^x[1-5]$' (empieza con 'x' y termina en número del 1 al 5), '^(?!Species$).*' (cualquier cadena excepto 'Species'). 
 
-5. Encadenamiento de Métodos (Method Chaining)
+## 5. Encadenamiento de Métodos (Method Chaining)
 
 Dado que la mayoría de los métodos de Pandas devuelven un DataFrame, se pueden enlazar operaciones consecutivas entre paréntesis para mejorar la legibilidad del código: 
 ````
@@ -637,7 +638,7 @@ df = (pd.melt(df)
      .query('val >= 200'))
 ````
 
-6. Creación de Nuevas Columnas
+## 6. Creación de Nuevas Columnas
 
 * df.assign(Area=lambda df: df.Length * df.Height): Calcula e inserta una o más columnas nuevas devolviendo un DataFrame. 
 * df['Volume'] = df.Length * df.Height * df.Depth: Añade directamente una nueva columna al DataFrame actual. 
@@ -647,12 +648,12 @@ df = (pd.melt(df)
 	* clip(lower=-10, upper=10): Recorta y limita los valores dentro de los umbrales indicados.
 	* abs(): Valor absoluto. 
 
-7. Tratamiento de Datos Faltantes (Missing Data)
+## 7. Tratamiento de Datos Faltantes (Missing Data)
 
 * df.dropna(): Elimina cualquier fila que contenga algún valor nulo (NA/null).
 * df.fillna(value): Reemplaza todos los valores nulos (NA/null) por el valor especificado. 
 
-8. Resumen Estadístico y Exploración (Summarize Data)
+## 8. Resumen Estadístico y Exploración (Summarize Data)
 
 * df['w'].value_counts(): Cuenta las frecuencias de cada valor único en una columna.
 * len(df): Devuelve el número de filas.
@@ -665,7 +666,7 @@ df = (pd.melt(df)
 * Funciones de agregación comunes: sum(), count() (ignora nulos), median(), quantile([0.25, 0.75]), min(), max(), mean(), var(), std().
 * apply(function): Aplica una función personalizada a lo largo del objeto. 
 
-9. Agrupación de Datos (Group Data)
+## 9. Agrupación de Datos (Group Data)
 
 * df.groupby(by="col"): Crea un objeto agrupado por los valores de la columna "col". 
 * df.groupby(level="ind"): Agrupa por un nivel específico de un MultiIndex llamado "ind". 
@@ -677,12 +678,12 @@ df = (pd.melt(df)
 	* rank(method='dense') / rank(method='min') / rank(method='first') / rank(pct=True): Calcula los rangos de los elementos lidiando de formas distintas con los empates.
 	* cumsum() / cummax() / cummin() / cumprod(): Suma, máximo, mínimo o producto acumulado, respectivamente. 
 
-10. Ventanas de Tiempo y Acumulados (Windows)
+## 10. Ventanas de Tiempo y Acumulados (Windows)
 
 * df.expanding(): Devuelve un objeto de expansión para aplicar funciones de resumen de manera acumulativa.
 * df.rolling(n): Devuelve un objeto de ventana móvil para aplicar funciones de resumen en bloques fijos de tamaño n. 
 
-11. Combinación de Datasets (Joins)
+## 11. Combinación de Datasets (Joins)
 
 Permite unir dos tablas (adf y bdf) en función de una columna común (on='x1'). 
 
@@ -704,7 +705,7 @@ Operaciones de Conjunto (Set-like Operations)
 * pd.merge(ydf, zdf, how='outer'): Filas presentes en cualquiera o en ambos DataFrames (Unión).
 * pd.merge(ydf, zdf, how='outer', indicator=True).query('_merge == "left_only"').drop(columns=['_merge']): Filas presentes en ydf pero no en zdf (Diferencia de conjuntos). 
 
-12. Gráficos y Visualización (Plotting)
+## 12. Gráficos y Visualización (Plotting)
 
 Pandas se integra nativamente con Matplotlib para dibujar gráficos de tus DataFrames. 
 * df.plot(): Gráfico de líneas estándar. 
@@ -723,7 +724,7 @@ Pandas se integra nativamente con Matplotlib para dibujar gráficos de tus DataF
 	* cumulative=True: Crea un gráfico acumulativo.
 	* bins=30: Define la cantidad de intervalos (para histogramas). 
 
-13. Conversión de Tipos de Datos (Changing Type)
+## 13. Conversión de Tipos de Datos (Changing Type)
 
 * pd.to_numeric(data): Convierte tipos no numéricos a numéricos.
 * pd.to_datetime(data): Convierte datos al tipo de fecha datetime.
@@ -732,7 +733,7 @@ Pandas se integra nativamente con Matplotlib para dibujar gráficos de tus DataF
 * df.infer_objects(): Intenta inferir el tipo de dato idóneo para columnas de tipo objeto.
 * df.convert_dtypes(): Convierte las columnas a los mejores tipos posibles soportados de manera inteligente. 
 
-14. Operaciones con Cadenas de Texto Vectorizadas (.str)
+## 14. Operaciones con Cadenas de Texto Vectorizadas (.str)
 
 Operan eficientemente sobre Series completas de tipo string de manera similar a los métodos nativos de Python: 
 * s.str.count(pattern): Cuenta las ocurrencias de un patrón.
@@ -746,25 +747,25 @@ Operan eficientemente sobre Series completas de tipo string de manera similar a 
 * s.str.replace(pat, rep): Reemplaza patrones definidos mediante texto o Regex.
 * s.str.isalnum(): Comprueba si cada carácter es alfanumérico. 
 
-15. Fechas y Horas (.dt)
+## 15. Fechas y Horas (.dt)
 
 Para Series de tipo datetime, el accesor .dt extrae sus componentes individuales: 
 * s.dt.year / s.dt.month / s.dt.day: Extrae el año, mes o día como entero.
 * s.dt.quarter: Identifica el trimestre del año en el que cae la fecha.
 * s.dt.hour / s.dt.minute / s.dt.second: Extrae la hora, minuto o segundo del registro temporal. 
 
-16. Transformación y Mapeado (Mapping)
+## 16. Transformación y Mapeado (Mapping)
 
 * s.map(lambda x: 2*x): Aplica una función o diccionario de mapeo a todos los elementos de una Serie individual.
 * df.apply(lambda s: s.max() - s.min(), axis=1): Aplica transformaciones avanzadas por columnas o filas (ej. la diferencia entre el máximo y mínimo de cada fila). 
 
-17. Entrada y Salida de Datos (Input/Output)
+## 17. Entrada y Salida de Datos (Input/Output)
 
 Formatos legibles por humanos (lectura) y optimizados para rendimiento de escala (escritura): 
 * Lectura: pd.read_csv(path), pd.read_html(path), pd.read_excel(path), pd.read_sql(path), pd.read_clipboard() (lee el texto copiado en el portapapeles).
 * Escritura: df.to_parquet(path), df.to_feather(path), df.to_hdf(path), df.to_clipboard() (copia la tabla al portapapeles de tu ordenador). 
 
-18. Opciones de Configuración Global de Pandas
+## 18. Opciones de Configuración Global de Pandas
 
 Permite controlar el comportamiento y la visualización de la librería a través de la sintaxis pd.options.display.opcion_name = valor. 
 
