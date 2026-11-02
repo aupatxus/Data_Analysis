@@ -566,3 +566,224 @@ En conclusión, Pyplot es la interfaz amigable que vuelve sencillo lo complejo, 
 <hr>
 
 
+
+
+
+
+# PANDAS
+
+https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
+
+
+1. Creación de DataFrames
+
+Permite definir estructuras de datos bidimensionales con etiquetas en filas y columnas. 
+* Por columnas: df = pd.DataFrame({"a":, "b": [7, 8, 9]}, index=[1, 2, 3]) -> Especifica valores columna por columna.
+* Por filas: df = pd.DataFrame([[4, 7, 10], [5, 8, 11]], index=[1, 2], columns=['a', 'b', 'c']) -> Especifica valores fila por fila.
+* Con MultiIndex (Índices jerárquicos): df = pd.DataFrame(data, index=pd.MultiIndex.from_tuples([('d', 1), ('d', 2)], names=['n', 'v'])). 
+
+2. Remodelación de Datos (Reshaping)
+
+Cambia la disposición, ordenación, índices y nombres de las tablas. 
+* pd.melt(df): Reúne columnas y las transforma en filas (unpivot).
+* df.pivot(columns='var', values='val'): Expande filas y las transforma en columnas (pivot).
+* pd.concat([df1, df2]): Concatena filas de varios DataFrames.
+* pd.concat([df1, df2], axis=1): Concatena columnas de varios DataFrames.
+* df.sort_values('col'): Ordena las filas por los valores de una columna (menor a mayor). Usa ascending=False para orden inverso.
+* df.sort_index(): Ordena el índice del DataFrame.
+* df.reset_index(): Restablece el índice a números secuenciales, moviendo el índice anterior a una columna.
+* df.rename(columns={'antiguo': 'nuevo'}): Renombra las columnas.
+* df.drop(columns=['col1', 'col2']): Elimina las columnas indicadas. 
+3. Filtrado y Subconjuntos (Subsets)
+
+Selección de observaciones (filas), variables (columnas) o elementos específicos. 
+
+Filtrado de Filas (Subsets de observaciones)
+
+* df[df.Length > 7]: Extrae filas que cumplen un criterio lógico.
+* df.drop_duplicates(): Elimina filas duplicadas.
+* df.head(n) / df.tail(n): Selecciona las primeras o últimas n filas.
+* df.sample(frac=0.5) / df.sample(n=10): Selecciona una fracción aleatoria o un número fijo n de filas.
+* df.nlargest(n, 'col') / df.nsmallest(n, 'col'): Selecciona y ordena las n entradas más grandes o más pequeñas.
+* Uso de .query(): Permite expresiones booleanas en cadena de texto, ej: df.query('Length > 7 and Width < 8') o df.query('Name.str.startswith("abc")', engine="python"). 
+
+Filtrado de Columnas (Subsets de variables)
+
+* df[['col1', 'col2']]: Selecciona múltiples columnas por nombre.
+* df['col'] o df.col: Selecciona una única columna como Series.
+* df.filter(regex='regex'): Selecciona columnas cuyos nombres coinciden con una expresión regular. 
+
+Subconjuntos combinados (Filas y Columnas)
+
+* df.iloc[10:20]: Selecciona las filas de la posición 10 a la 20.
+* df.iloc[:, [1, 2, 5]]: Selecciona las columnas en las posiciones numéricas 1, 2 y 5.
+* df.loc[:, 'x2':'x4']: Selecciona todas las columnas entre 'x2' y 'x4' inclusive.
+* df.loc[df['a'] > 10, ['a', 'c']]: Selecciona las filas que cumplen la condición, y solo las columnas 'a' y 'c'.
+* df.at[4, 'A'] / df.iat[1, 2]: Accede de manera rápida a un único valor por etiqueta o por posición de índice, respectivamente. 
+
+4. Lógica y Expresiones Regulares en Python/Pandas
+
+* Operadores lógicos: < (menor), > (mayor), == (igual), != (diferente), <= , >=.
+* Funciones lógicas: df.column.isin(valores) (pertenencia a grupo), pd.isnull(obj) (es NaN), pd.notnull(obj) (no es NaN).
+* Conectores lógicos: & (and), | (or), ~ (not), ^ (xor), df.any() (alguno), df.all() (todos).
+* Ejemplos Regex: '\.' (contiene un punto), 'Length$' (termina en 'Length'), '^Sepal' (empieza por 'Sepal'), '^x[1-5]$' (empieza con 'x' y termina en número del 1 al 5), '^(?!Species$).*' (cualquier cadena excepto 'Species'). 
+
+5. Encadenamiento de Métodos (Method Chaining)
+
+Dado que la mayoría de los métodos de Pandas devuelven un DataFrame, se pueden enlazar operaciones consecutivas entre paréntesis para mejorar la legibilidad del código: 
+````
+df = (pd.melt(df)
+     .rename(columns={'variable': 'var', 'value': 'val'})
+     .query('val >= 200'))
+````
+
+6. Creación de Nuevas Columnas
+
+* df.assign(Area=lambda df: df.Length * df.Height): Calcula e inserta una o más columnas nuevas devolviendo un DataFrame. 
+* df['Volume'] = df.Length * df.Height * df.Depth: Añade directamente una nueva columna al DataFrame actual. 
+* pd.qcut(df.col, n, labels=False): Divide o agrupa una columna en n cuantiles discretos. 
+* Funciones Vectoriales: Operan de manera eficiente en columnas completas o Series:
+	* max(axis=1) / min(axis=1): Máximo o mínimo por filas (horizontal).
+	* clip(lower=-10, upper=10): Recorta y limita los valores dentro de los umbrales indicados.
+	* abs(): Valor absoluto. 
+
+7. Tratamiento de Datos Faltantes (Missing Data)
+
+* df.dropna(): Elimina cualquier fila que contenga algún valor nulo (NA/null).
+* df.fillna(value): Reemplaza todos los valores nulos (NA/null) por el valor especificado. 
+
+8. Resumen Estadístico y Exploración (Summarize Data)
+
+* df['w'].value_counts(): Cuenta las frecuencias de cada valor único en una columna.
+* len(df): Devuelve el número de filas.
+* df.shape: Tupla con el formato (número_de_filas, número_de_columnas).
+* df['w'].nunique(): Cuenta la cantidad de valores distintos/únicos en una columna.
+* df.describe(): Genera estadísticas descriptivas básicas para cada columna numérica.
+* df.info(): Imprime un resumen conciso de la estructura del DataFrame.
+* df.memory_usage(): Muestra el uso de memoria de cada columna.
+* df.dtypes: Muestra los tipos de datos de cada columna.
+* Funciones de agregación comunes: sum(), count() (ignora nulos), median(), quantile([0.25, 0.75]), min(), max(), mean(), var(), std().
+* apply(function): Aplica una función personalizada a lo largo del objeto. 
+
+9. Agrupación de Datos (Group Data)
+
+* df.groupby(by="col"): Crea un objeto agrupado por los valores de la columna "col". 
+* df.groupby(level="ind"): Agrupa por un nivel específico de un MultiIndex llamado "ind". 
+* Funciones para GroupBy:
+	* size(): Devuelve el tamaño (conteo) de cada grupo.
+	* agg(function): Agrega los grupos aplicando una función específica. 
+* Funciones por grupo (mantiene la longitud original del DataFrame):
+	* shift(1) / shift(-1): Desplaza o retrasa los valores en una posición.
+	* rank(method='dense') / rank(method='min') / rank(method='first') / rank(pct=True): Calcula los rangos de los elementos lidiando de formas distintas con los empates.
+	* cumsum() / cummax() / cummin() / cumprod(): Suma, máximo, mínimo o producto acumulado, respectivamente. 
+
+10. Ventanas de Tiempo y Acumulados (Windows)
+
+* df.expanding(): Devuelve un objeto de expansión para aplicar funciones de resumen de manera acumulativa.
+* df.rolling(n): Devuelve un objeto de ventana móvil para aplicar funciones de resumen en bloques fijos de tamaño n. 
+
+11. Combinación de Datasets (Joins)
+
+Permite unir dos tablas (adf y bdf) en función de una columna común (on='x1'). 
+
+Joins Estándar
+
+* pd.merge(adf, bdf, how='left', on='x1'): Mantiene todas las filas de adf y une las coincidencias de bdf.
+* pd.merge(adf, bdf, how='right', on='x1'): Mantiene todas las filas de bdf y une las coincidencias de adf.
+* pd.merge(adf, bdf, how='inner', on='x1'): Retiene únicamente las filas con coincidencias en ambas tablas.
+* pd.merge(adf, bdf, how='outer', on='x1'): Retiene absolutamente todos los valores y filas de ambas tablas. 
+
+Joins de Filtrado
+
+* adf[adf.x1.isin(bdf.x1)]: Todas las filas de adf que tienen una coincidencia exacta en bdf.
+* adf[~adf.x1.isin(bdf.x1)]: Todas las filas de adf que no tienen coincidencia en bdf. 
+
+Operaciones de Conjunto (Set-like Operations)
+
+* pd.merge(ydf, zdf): Filas compartidas en ambos DataFrames (Intersección).
+* pd.merge(ydf, zdf, how='outer'): Filas presentes en cualquiera o en ambos DataFrames (Unión).
+* pd.merge(ydf, zdf, how='outer', indicator=True).query('_merge == "left_only"').drop(columns=['_merge']): Filas presentes en ydf pero no en zdf (Diferencia de conjuntos). 
+
+12. Gráficos y Visualización (Plotting)
+
+Pandas se integra nativamente con Matplotlib para dibujar gráficos de tus DataFrames. 
+* df.plot(): Gráfico de líneas estándar. 
+* df.plot.scatter(x='w', y='h'): Gráfico de dispersión (Scatter plot).
+* df.plot.hist(): Histograma de frecuencias. 
+* df.plot.pie(): Gráfico de pastel. 
+* df.plot.bar(): Gráfico de barras horizontales/verticales. 
+* df.plot.boxplot(): Diagrama de caja y bigotes. 
+* df.plot.area(): Gráfico de área. 
+* df.plot.hexbin(): Gráfico de compartimentos hexagonales. 
+* Argumentos combinables de .plot():
+	* subplots=True: Genera gráficos separados para cada columna.
+	* title="Texto" o title=['col1', 'col2']: Configura el título general o por subgráfico.
+	* stacked=True: Apila las barras de las columnas una encima de la otra (para gráficos de barras o áreas).
+	* alpha=0.5: Ajusta la transparencia del color al 50%.
+	* cumulative=True: Crea un gráfico acumulativo.
+	* bins=30: Define la cantidad de intervalos (para histogramas). 
+
+13. Conversión de Tipos de Datos (Changing Type)
+
+* pd.to_numeric(data): Convierte tipos no numéricos a numéricos.
+* pd.to_datetime(data): Convierte datos al tipo de fecha datetime.
+* pd.to_timedelta(data): Convierte datos al tipo de intervalo timedelta.
+* df.astype(type): Fuerza la conversión de los datos a casi cualquier tipo básico o categórico.
+* df.infer_objects(): Intenta inferir el tipo de dato idóneo para columnas de tipo objeto.
+* df.convert_dtypes(): Convierte las columnas a los mejores tipos posibles soportados de manera inteligente. 
+
+14. Operaciones con Cadenas de Texto Vectorizadas (.str)
+
+Operan eficientemente sobre Series completas de tipo string de manera similar a los métodos nativos de Python: 
+* s.str.count(pattern): Cuenta las ocurrencias de un patrón.
+* s.str.get(index): Extrae el elemento en el índice indicado.
+* s.str.join(sep): Concatena los elementos internos usando un separador.
+* s.str.title(): Capitaliza la primera letra de cada palabra.
+* s.str.len(): Devuelve la longitud de cada string.
+* s.str.cat(): Une todos los elementos de la Serie en un único bloque de texto.
+* s.str.partition(sep): Divide el texto basándose en la primera aparición del separador.
+* s.str.slice(start, stop, step): Corta/Slices cada elemento de texto.
+* s.str.replace(pat, rep): Reemplaza patrones definidos mediante texto o Regex.
+* s.str.isalnum(): Comprueba si cada carácter es alfanumérico. 
+
+15. Fechas y Horas (.dt)
+
+Para Series de tipo datetime, el accesor .dt extrae sus componentes individuales: 
+* s.dt.year / s.dt.month / s.dt.day: Extrae el año, mes o día como entero.
+* s.dt.quarter: Identifica el trimestre del año en el que cae la fecha.
+* s.dt.hour / s.dt.minute / s.dt.second: Extrae la hora, minuto o segundo del registro temporal. 
+
+16. Transformación y Mapeado (Mapping)
+
+* s.map(lambda x: 2*x): Aplica una función o diccionario de mapeo a todos los elementos de una Serie individual.
+* df.apply(lambda s: s.max() - s.min(), axis=1): Aplica transformaciones avanzadas por columnas o filas (ej. la diferencia entre el máximo y mínimo de cada fila). 
+
+17. Entrada y Salida de Datos (Input/Output)
+
+Formatos legibles por humanos (lectura) y optimizados para rendimiento de escala (escritura): 
+* Lectura: pd.read_csv(path), pd.read_html(path), pd.read_excel(path), pd.read_sql(path), pd.read_clipboard() (lee el texto copiado en el portapapeles).
+* Escritura: df.to_parquet(path), df.to_feather(path), df.to_hdf(path), df.to_clipboard() (copia la tabla al portapapeles de tu ordenador). 
+
+18. Opciones de Configuración Global de Pandas
+
+Permite controlar el comportamiento y la visualización de la librería a través de la sintaxis pd.options.display.opcion_name = valor. 
+
+Funciones de gestión de opciones
+
+* get_option(option): Recupera el valor actual de una opción.
+* set_option(option): Configura una opción.
+* reset_option(options): Restablece las opciones a sus configuraciones por defecto.
+* describe_option(options): Imprime la descripción detallada de una opción.
+* option_context(options): Bloque contextual para ejecutar código con configuraciones temporales que se revierten al salir. 
+
+Opciones más comunes de Visualización (Display options)
+
+* display.max_rows / display.max_columns: Número máximo de filas/columnas a mostrar en la impresión bonita (pretty-print).
+* display.expand_frame_repr: Controla si la representación del DataFrame se divide a lo largo de varias páginas.
+* display.large_repr: Determina si un DataFrame que excede los límites se trunca o se muestra como un resumen.
+* display.precision: Cantidad de decimales de precisión en las salidas.
+* display.max_colwidth: Ancho máximo de las columnas; los textos más largos se truncarán.
+* display.max_info_columns: Número máximo de columnas mostradas al llamar a df.info().
+* display.chop_threshold: Umbral de redondeo a cero para valores numéricos extremadamente pequeños.
+* display.colheader_justify: Controla la justificación del texto en las cabeceras de columna. 
+
