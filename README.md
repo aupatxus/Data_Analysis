@@ -841,8 +841,10 @@ print(df.isna().sum())
 ### Limpieza y tratamiento de nulos
 
 Una vez identificados, existen dos estrategias principales para solucionar la falta de datos:
-* Eliminar las filas con nulos (dropna): Borra cualquier fila que contenga al menos un valor vacío.python
+* Eliminar las filas con nulos (dropna): Borra cualquier fila que contenga al menos un valor vacío.
+````
 df_limpio = df.dropna()
+````
 
 * Reemplazar o imputar los nulos (fillna): Rellena los espacios vacíos con un valor fijo, con la media de la columna o con métodos de propagación.
 
