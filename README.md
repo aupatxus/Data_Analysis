@@ -788,3 +788,123 @@ Opciones más comunes de Visualización (Display options)
 * display.chop_threshold: Umbral de redondeo a cero para valores numéricos extremadamente pequeños.
 * display.colheader_justify: Controla la justificación del texto en las cabeceras de columna. 
 
+<hr>
+
+
+# Valores nulos en Python
+
+
+En Python, la representación y el manejo de los valores nulos dependen del entorno en el que estés trabajando: el entorno nativo de Python o el análisis de datos con librerías como Pandas y NumPy.
+En Python puro, el valor nulo se representa con la palabra clave None, mientras que en ciencia de datos se utiliza NaN (Not a Number) para gestionar datos faltantes en estructuras numéricas o tablas.
+
+
+
+## 1. Python Puro: None
+
+None es un objeto especial de tipo NoneType que indica la ausencia de valor o que una variable está vacía.
+* Cómo verificarlo: Siempre se debe evaluar utilizando el operador de identidad is o is not.
+````
+variable = None
+
+if variable is None:
+    print("La variable es nula")
+
+if variable is not None:
+    print("La variable tiene un valor")
+````
+
+
+## 2. Ciencia de Datos: NaN (Pandas y NumPy)
+
+Cuando trabajas con tablas de datos (DataFrames), los valores nulos numéricos se representan como NaN (un tipo especial de float). Para gestionarlos eficientemente, las herramientas principales son las siguientes:
+
+Detección de nulos
+
+Para saber cuántos datos faltan en un conjunto de datos, se combinan funciones de detección con sumatorias:
+````
+import pandas as pd
+import numpy as np
+
+# Crear un DataFrame de ejemplo
+data = {'Nombre': ['Ana', 'Luis', 'Carlos'], 'Edad': [23, np.nan, 31]}
+df = pd.DataFrame(data)
+
+# Detectar nulos (devuelve True/False)
+print(df.isna())  # O también df.isnull()
+
+# Contar cuántos nulos hay por cada columna
+print(df.isna().sum())
+````
+
+
+
+### Limpieza y tratamiento de nulos
+
+Una vez identificados, existen dos estrategias principales para solucionar la falta de datos:
+* Eliminar las filas con nulos (dropna): Borra cualquier fila que contenga al menos un valor vacío.python
+df_limpio = df.dropna()
+
+* Reemplazar o imputar los nulos (fillna): Rellena los espacios vacíos con un valor fijo, con la media de la columna o con métodos de propagación.
+
+#### Rellenar con un valor específico (ej. cero o un texto)
+df['Edad'] = df['Edad'].fillna(0)
+
+#### Rellenar con la media de esa columna
+df['Edad'] = df['Edad'].fillna(df['Edad'].mean())
+
+
+
+
+# Tratamiento de Datos Nulos
+
+Los datos del mundo real rara vez son limpios y homogéneos; suelen contener datos faltantes conocidos genéricamente como valores nulos, missing, NaN o NA.
+
+## 1. Estrategias Generales para Datos Faltantes
+
+Existen dos enfoques principales en la programación para representar la ausencia de datos:
+* Máscaras: Matrices booleanas independientes o bits locales dedicados a indicar globalmente si un valor es nulo. Añaden sobrecarga de almacenamiento y cálculo.
+* Valores Centinela: Convenciones específicas de los datos (como usar -9999) o globales como NaN (Not a Number). Reducen el rango de valores válidos y no están disponibles para todos los tipos de datos. El lenguaje R, por ejemplo, usa centinelas integrados por cada tipo de dato.
+
+## 2. El Enfoque de Pandas
+
+Debido a que NumPy no tiene soporte nativo de valores NA para tipos no flotantes, Pandas optó por un compromiso y adoptó dos centinelas existentes en Python:
+* None (Faltante Pythonico): Es un objeto singleton de Python. Solo se puede usar en arrays de tipo object. Genera mucha sobrecarga computacional en comparación con los tipos nativos y produce errores (TypeError) al intentar realizar operaciones aritméticas o agregaciones (como .sum()).
+* NaN (Faltante Numérico): Es un valor especial de punto flotante estándar (IEEE). Permite operaciones rápidas en código compilado, pero actúa como un "virus": cualquier operación aritmética con un NaN da como resultado otro NaN.
+
+Conversión Automática (Upcasting)
+
+Pandas gestiona ambos de forma casi intercambiable. Si introduces un nulo en un tipo de dato que no lo admite nativamente, Pandas realiza una conversión automática:
+````
+Clase de Tipo	        	Conversión al almacenar un NA	Valor Centinela NA
+floating (Decimales)		Sin cambios	                    np.nan
+object (Objetos/Strings)	Sin cambios	                    None o np.nan
+integer (Enteros)	        Convierte a float64	            np.nan
+boolean (Booleanos)	        Convierte a object	            None o np.nan
+````
+Nota: Los datos de texto (cadenas/strings) siempre se guardan con el dtype object.
+
+## 3. Funciones Principales para Operar con Nulos
+
+
+### A. Detección
+
+* isnull(): Genera una máscara booleana devolviendo True donde hay un valor nulo.
+* notnull(): Lo opuesto a isnull(), devuelve True en las posiciones con datos válidos. Las máscaras booleanas se pueden usar directamente para filtrar las estructuras de datos.
+
+### B. Eliminación (dropna)
+
+Permite filtrar y descartar los datos nulos. En un DataFrame, al no poder borrarse celdas individuales, se eliminan filas o columnas completas mediante parámetros:
+* axis: Por defecto es 0 o 'rows' (elimina filas); configurado en 1 o 'columns' elimina las columnas que tengan nulos.
+* how: Determina el criterio de borrado. Por defecto es 'any' (borra si hay al menos un nulo). Puede cambiarse a 'all' para borrar solo si toda la fila/columna es nula.
+* thresh: Permite establecer de forma precisa un número mínimo de valores no nulos requeridos para conservar la fila o columna.
+
+### C. Reemplazo e Imputación (fillna)
+
+Devuelve una copia de la estructura con los valores nulos reemplazados:
+* Valor fijo: Rellenar con un escalar como el cero (df.fillna(0)) o con estadísticos estadísticos de una columna (df.fillna(df[1].mean())).
+* Propagación: Rellenar según la posición de otros datos usando el parámetro method:
+	* ffill (forward-fill): Propaga el último valor válido hacia adelante.
+	* bfill (back-fill): Propaga el siguiente valor válido hacia atrás. (También se puede parametrizar el sentido de la propagación con el argumento axis).
+
+
+<hr>
