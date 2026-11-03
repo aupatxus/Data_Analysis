@@ -847,11 +847,13 @@ df_limpio = df.dropna()
 * Reemplazar o imputar los nulos (fillna): Rellena los espacios vacíos con un valor fijo, con la media de la columna o con métodos de propagación.
 
 #### Rellenar con un valor específico (ej. cero o un texto)
+````
 df['Edad'] = df['Edad'].fillna(0)
-
+````
 #### Rellenar con la media de esa columna
+````
 df['Edad'] = df['Edad'].fillna(df['Edad'].mean())
-
+````
 
 
 
@@ -876,10 +878,10 @@ Conversión Automática (Upcasting)
 Pandas gestiona ambos de forma casi intercambiable. Si introduces un nulo en un tipo de dato que no lo admite nativamente, Pandas realiza una conversión automática:
 ````
 Clase de Tipo	        	Conversión al almacenar un NA	Valor Centinela NA
-floating (Decimales)		Sin cambios	                    np.nan
-object (Objetos/Strings)	Sin cambios	                    None o np.nan
-integer (Enteros)	        Convierte a float64	            np.nan
-boolean (Booleanos)	        Convierte a object	            None o np.nan
+floating (Decimales)		Sin cambios	                    	np.nan
+object (Objetos/Strings)	Sin cambios	                    	None o np.nan
+integer (Enteros)	        Convierte a float64	            	np.nan
+boolean (Booleanos)	        Convierte a object	            	None o np.nan
 ````
 Nota: Los datos de texto (cadenas/strings) siempre se guardan con el dtype object.
 
