@@ -877,7 +877,7 @@ Conversión Automática (Upcasting)
 
 Pandas gestiona ambos de forma casi intercambiable. Si introduces un nulo en un tipo de dato que no lo admite nativamente, Pandas realiza una conversión automática:
 ````
-Clase de Tipo	        	Conversión al almacenar un NA	Valor Centinela NA
+Clase de Tipo	        	Conversión al almacenar un NA		Valor Centinela NA
 floating (Decimales)		Sin cambios	                    	np.nan
 object (Objetos/Strings)	Sin cambios	                    	None o np.nan
 integer (Enteros)	        Convierte a float64	            	np.nan
