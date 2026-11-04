@@ -912,3 +912,81 @@ Devuelve una copia de la estructura con los valores nulos reemplazados:
 
 
 <hr>
+
+
+
+
+# Agregación y Agrupación en Pandas
+
+El análisis eficiente de grandes volúmenes de datos requiere la capacidad de sumarizar, es decir, reducir múltiples registros a un único valor descriptivo mediante operaciones estadísticas.
+
+## 1. Agregación Básica en Pandas
+
+Las agregaciones devuelven un único valor en una Series, pero en un DataFrame calculan el resultado para cada columna de forma independiente.
+* Modificación de eje: El argumento axis='columns' permite realizar la agregación de manera horizontal (por filas).
+* Método describe(): Computa de forma automática las estadísticas descriptivas estándar para entender las propiedades generales de un conjunto de datos (conteo, media, desviación estándar, mínimo, máximos y percentiles).
+
+Principales funciones de agregación disponibles:
+````
+Agregación          Descripción
+
+count()	            Número total de elementos (excluye nulos).
+first(), last()     Primer y último elemento del conjunto.
+mean(), median()    Media aritmética y mediana.
+min(), max()	    Valores mínimo y máximo.
+std(), var()	    Desviación estándar y varianza.
+mad()	            Desviación media absoluta.
+prod()	            Producto de todos los elementos.
+sum()	            Suma de todos los elementos.
+````
+
+## 2. GroupBy: Split, Apply, Combine
+
+Para agrupaciones condicionales basadas en dimensiones o índices, se utiliza el proceso matemático conocido como Split-Apply-Combine:
+1. Split (Separar): Rompe y agrupa el DataFrame dependiendo del valor de una clave.
+2. Apply (Aplicar): Computa una función (agregación, transformación o filtrado) dentro de cada grupo individual.
+3. Combine (Combinar): Une los resultados de los grupos en un único objeto o matriz de salida.
+* Evaluación perezosa (Lazy Evaluation): Al invocar .groupby(), Pandas no realiza ningún cálculo inmediatamente, sino que devuelve un objeto DataFrameGroupBy (una vista especial) que espera la instrucción de qué agregación aplicar.
+
+El Objeto GroupBy soporta:
+
+* Indexado de columnas: Seleccionar una columna específica tras agrupar (ej. df.groupby('key')['col'].mean()).
+* Iteración directa: Permite recorrer manualmente los grupos mediante bucles for (retornando el nombre del grupo y su sub-DataFrame correspondiente).
+* Métodos de envío: Cualquier método válido de un DataFrame (como .describe()) se puede encadenar a un objeto agrupado para ejecutarse de forma aislada en cada grupo.
+
+## 3. Operaciones avanzadas: Aggregate, Filter, Transform y Apply
+
+Más allá de las sumas o medias simples, existen métodos para procesar grupos con mayor flexibilidad:
+* aggregate() / agg(): Permite calcular múltiples funciones estadísticas a la vez pasando cadenas, listas de funciones o un diccionario que asocie columnas con operaciones específicas.
+* filter(): Descarta o mantiene grupos enteros en función de una propiedad booleana evaluada sobre el grupo completo (ej. filtrar grupos cuyo valor mínimo supere un umbral).
+* transform(): Devuelve una versión modificada de los datos que tiene la misma forma exacta (dimensiones) que el DataFrame original. Se usa comúnmente para normalizar o centrar datos restando la media del grupo.
+* apply(): Permite aplicar una función arbitraria a los sub-DataFrames de cada grupo. El resultado se combina automáticamente adaptándose a lo que devuelva la función (escalares, Series o DataFrames).
+
+Opciones para especificar las llaves de separación:
+
+Los grupos no solo se definen por nombres de columnas; también pueden agruparse mediante:
+* Una lista o array externo con la misma longitud que el DataFrame.
+* Un diccionario o serie que mapee los índices actuales a nuevos nombres de grupos.
+* Cualquier función nativa de Python (como str.lower para normalizar cadenas del índice).
+* Una lista combinada de las opciones anteriores para generar multi-índices (índices jerárquicos).
+
+## 4. Pivot Tables (Tablas Dinámicas)
+
+Son conceptualmente versiones multidimensionales de la agregación GroupBy. Mientras que GroupBy divide y combina datos sobre un eje unidimensional, la tabla dinámica lo hace distribuyendo los datos en una cuadrícula bidimensional.
+
+Sintaxis y argumentos principales:
+
+````
+df.pivot_table(data, values=None, index=None, columns=None,
+               aggfunc='mean', fill_value=None, margins=False,
+               dropna=True, margins_name='All')
+````
+
+* index y columns: Definen qué variables se colocarán en las filas y en las columnas de la cuadrícula.
+* aggfunc: Controla el tipo de agregación (por defecto es 'mean'). Puede recibir diccionarios para aplicar funciones distintas a cada columna.
+* margins=True: Añade automáticamente filas y columnas de totales globales y subtotales (etiquetados por defecto como "All").
+* Multi-nivel: Se pueden pasar listas a index o columns (combinadas con funciones como pd.cut o pd.qcut para agrupar por rangos o cuantiles) para construir resúmenes de más de dos dimensiones.
+
+
+
+<hr>
