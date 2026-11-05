@@ -990,3 +990,91 @@ df.pivot_table(data, values=None, index=None, columns=None,
 
 
 <hr>
+
+
+
+# Combinar Datasets en Pandas: Concat, Append, Merge y Join
+
+Este repositorio contiene una guía práctica sobre cómo realizar operaciones avanzadas de manipulación y combinación de datos utilizando **Pandas** y **NumPy**. Incluye desde la concatenación simple hasta cruces complejos utilizando un caso de estudio real con datos demográficos de los Estados Unidos.
+
+---
+
+## 📌 Tabla de Contenidos
+1. [Concatenación Sencilla (pd.concat)](#1-concatenación-sencilla-pdconcat)
+2. [Manejo de Índices Duplicados](#2-manejo-de-índices-duplicados)
+3. [Combinación con Joins aritméticos](#3-combinación-con-joins-aritméticos)
+4. [Fusión Avanzada de Datos (pd.merge)](#4-fusión-avanzada-de-datos-pdmerge)
+5. [Caso Práctico: Densidad de Población en EE. UU.](#5-caso-práctico-densidad-de-población-en-ee-uu)
+
+---
+
+## 1. Concatenación Sencilla (`pd.concat`)
+
+La función `pd.concat()` permite unir colecciones de objetos tipo `Series` o `DataFrame` de forma similar a `np.concatenate` en NumPy, pero con opciones más potentes.
+
+* **Por filas (Eje 0):** Operación por defecto (`axis=0`).
+* **Por columnas (Eje 1):** Alineación horizontal usando `axis=1`.
+
+```python
+# Ejemplo de concatenación por columnas
+pd.concat([df3, df4], axis=1)
+```
+
+## 2. Manejo de Índices Duplicados
+
+A diferencia de NumPy, Pandas **mantiene los índices originales** al concatenar, lo que puede generar duplicaciones en el dataset resultante. Existen tres formas de gestionar este comportamiento:
+
+* **Permitir duplicados:** Comportamiento por defecto.
+* **Capturar duplicados como error:** Utilizando `verify_integrity=True` para lanzar una excepción si hay solapes.
+* **Ignorar el índice:** Utilizando `ignore_index=True` para generar un nuevo índice entero incremental.
+* **Índices jerárquicos (MultiIndex):** Utilizando el parámetro `keys=[...]` para etiquetar la procedencia de cada fuente de datos.
+
+## 3. Combinación con Joins aritméticos
+
+Cuando los `DataFrames` no comparten exactamente las mismas columnas, se puede especificar la intersección de conjuntos:
+
+* **Outer Join (`join='outer'`):** Unión completa de las columnas (rellena los vacíos con `NaN`). Es el comportamiento por defecto.
+* **Inner Join (`join='inner'`):** Intersección estricta. Solo mantiene las columnas que existen en todos los datasets.
+
+## 4. Fusión Avanzada de Datos (`pd.merge`)
+
+La función `pd.merge()` implementa operaciones de álgebra relacional de alto rendimiento en memoria, categorizadas en tres tipos de relaciones:
+
+### Categorías de Cruces
+* **One-to-one (Uno a uno):** Unión simple basada en claves compartidas con valores únicos.
+* **Many-to-one (Muchos a uno):** Una de las claves contiene elementos duplicados; el DataFrame resultante preserva dicha estructura.
+* **Many-to-many (Muchos a muchos):** Ambas columnas clave tienen duplicados, generando una combinación cruzada de los elementos que coinciden.
+
+### Especificación de Claves
+* **`on`:** Define la columna clave común si tiene el mismo nombre en ambas tablas.
+* **`left_on` y `right_on`:** Permite mapear claves que tienen nombres diferentes en cada tabla.
+* **`left_index` y `right_index`:** Permite realizar el cruce utilizando los índices en lugar de columnas (también simplificado con el método `.join()`).
+
+### Sufijos para Conflictos
+Si existen columnas con el mismo nombre que no forman parte del cruce, Pandas añade automáticamente sufijos `_x` e `_y`. Estos pueden personalizarse con el parámetro `suffixes=['_Sufijo1', '_Sufijo2']`.
+
+---
+
+## 5. Caso Práctico: Densidad de Población en EE. UU.
+
+Se lleva a cabo un ejercicio de limpieza y combinación (*Data Wrangling*) utilizando tres fuentes de datos en formato CSV:
+1. **`state-population.csv`**: Histórico de población por estado (`total` y `under18`).
+2. **`state-areas.csv`**: Área física en millas cuadradas de cada estado/territorio.
+3. **`state-abbrevs.csv`**: Abreviaturas oficiales de los estados.
+
+### Flujo de Trabajo Técnico:
+1. **Unión Inicial (Many-to-one):** Combinación de población y abreviaturas mediante `how='outer'` para identificar pérdidas de registros.
+2. **Data Cleaning:** Detección de nulos en territorios no tabulados (como Puerto Rico `PR` y el total de `USA`). Corrección manual de datos faltantes y eliminación de filas irrelevantes mediante `.dropna()`.
+3. **Segunda Unión:** Cruce con la tabla de áreas basándose en el nombre completo del estado.
+4. **Análisis de Datos:** Filtrado del censo del año **2010** para la población `total` mediante la función `.query()`.
+5. **Cálculo Final:** Creación de la métrica `density` (`population / area (sq. mi)`) y ordenación de los resultados.
+
+### 📊 Resultados Clave (Censo 2010)
+
+* **Estados/Territorios con mayor densidad:**
+  1. District of Columbia (~8,898 hab/mi²)
+  2. Puerto Rico (~1,058 hab/mi²)
+  3. New Jersey (~1,009 hab/mi²)
+
+* **Estados con menor densidad:**
+  * Alaska (~1.08 hab/mi²), posicionándose como el estado con menor densidad poblacional con diferencia.
