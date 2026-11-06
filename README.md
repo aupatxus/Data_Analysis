@@ -3,208 +3,230 @@ Data Analysis https://formacion.thebridge.tech/
 
 ![Data Science con IA](https://raw.githubusercontent.com/aupatxus/ONLINE_DS_THEBRIDGE_GitHub/refs/heads/main/Vital%20LANBIDE.png)
 
-NumPy (Numerical Python) es la librería fundamental en Python para la computación científica y el análisis de datos. Su gran ventaja es que introduce los arrays, estructuras de datos que permiten almacenar colecciones de elementos del mismo tipo de forma extremadamente rápida y eficiente, superando por mucho el rendimiento de las listas nativas de Python.
 
 
 
-## 1. Listas y Matrices
-
-Las listas de Python son muy flexibles porque pueden guardar cualquier tipo de dato (números, texto, booleanos combinados). Sin embargo, esa flexibilidad las hace lentas para el cálculo matemático estructurado.
-Una matriz es una cuadrícula bidimensional organizada en filas y columnas. En Python básico, las matrices se representan como "listas de listas" (por ejemplo, [[1, 2], [3, 4]]), pero operar matemáticamente con ellas requiere bucles for, lo cual es ineficiente y tedioso de programar.
 
 
+# NumPy y Matrices en Python
 
-## 2. NumPy
+## Introducción a NumPy
 
-NumPy resuelve este problema introduciendo el ndarray (array N-dimensional). A diferencia de las listas:
-- Son homogéneos: Todos los elementos dentro de un array deben ser estrictamente del mismo tipo de dato.
-- Memoria eficiente: Se almacenan en bloques de memoria contiguos, lo que permite realizar operaciones matemáticas directamente sobre miles de datos a la vez (proceso llamado vectorización) sin usar bucles.
-Para usarlo, siempre debes importarlo bajo el alias estándar np:
+**NumPy (Numerical Python) es la librería fundamental en Python para la computación científica y el análisis de datos.** 
+
+Su principal ventaja radica en la introducción de los **arrays** (`ndarray`), estructuras de datos homogéneas y optimizadas que permiten almacenar y procesar colecciones de elementos de forma extremadamente rápida y eficiente, superando por mucho el rendimiento de las listas nativas de Python.
+
+
+---
+
+## 1. Listas vs. Matrices y Arrays
+
+### Listas nativas de Python
+* **Flexibilidad extrema:** Pueden almacenar cualquier tipo de datos de forma combinada (números, strings, booleanos, objetos).
+* **Inadecuadas para cálculo matemático estructurado:** Esa misma flexibilidad las vuelve lentas e ineficientes al procesar grandes volúmenes de datos numéricos.
+* **Representación de matrices básicas:** Se logran mediante "listas de listas" (ej. `[[1, 2], [3, 4]]`), pero operar matemáticamente con ellas exige bucles `for` anidados, lo cual resulta tedioso y de bajo rendimiento.
+
+### Arrays de NumPy (`ndarray`)
+* **Homogeneidad estricta:** Todos los elementos dentro del array deben ser obligatoriamente del mismo tipo de dato.
+* **Eficiencia en memoria:** Almacenados en bloques de memoria contiguos, lo que permite la **vectorización** (aplicar operaciones matemáticas a miles de datos simultáneamente sin usar bucles `for`).
+
+---
+
+## 2. Configuración e Instalación
+
+Para instalar NumPy en tu entorno de desarrollo local, ejecuta el siguiente comando en la terminal:
+
+````
+pip install numpy
+````
+
+Para comenzar a utilizarlo en tus scripts de Python, debes importarlo bajo el alias estándar de la comunidad:
+
 ````
 import numpy as np
 ````
 
+---
 
+## 3. Creación de Arrays
 
-## 3. Creación de arrays
+Existen diferentes funciones integradas para inicializar arrays dependiendo de las necesidades del desarrollo:
 
-Existen múltiples formas de crear arrays en NumPy dependiendo de lo que necesites:
-- Desde una lista:
-````
-vector = np.array([1, 2, 3]) # 1 Dimensión
-matriz = np.array([[1, 2], [3, 4]]) # 2 Dimensiones
-````
-- Con valores predefinidos:
-````
-ceros = np.zeros((3, 4))   # Crea una matriz de 3x4 llena de ceros (0.0)
-unos = np.ones((2, 2))     # Crea una matriz de 2x2 llena de unos (1.0)
-vacia = np.full((2, 3), 7) # Crea una matriz de 2x3 llena del número 7
-````
-- Con secuencias numéricas:
-````
-rango = np.arange(0, 10, 2)  # De 0 a 9 saltando de 2 en 2 -> [0, 2, 4, 6, 8]
-lineal = np.linspace(0, 1, 5) # 5 números equiespaciados entre 0 y 1 -> [0. , 0.25, 0.5 , 0.75, 1.]
-````
-- Con números aleatorios:
-````
-aleatorio = np.random.rand(3, 3) # Matriz 3x3 con números decimales aleatorios entre 0 y 1
-````
+* **Desde colecciones de Python:**
+  ````
+  vector = np.array([1, 2, 3])                 # Array de 1 Dimensión
+  matriz = np.array([[1, 2], [3, 4]])          # Array de 2 Dimensiones (Matriz)
+  ````
+* **Con valores predefinidos:**
+  ````
+  ceros = np.zeros((3, 4))                     # Matriz de 3x4 rellena de 0.0
+  unos = np.ones((2, 2))                       # Matriz de 2x2 rellena de 1.0
+  vacia = np.full((2, 3), 7)                   # Matriz de 2x3 llena con el número 7
+  ````
+* **Mediante secuencias numéricas:**
+  ````
+  rango = np.arange(0, 10, 2)                  # Genera de 0 a 9 saltando de 2 en 2 -> [0, 2, 4, 6, 8]
+  lineal = np.linspace(0, 1, 5)                # 5 números equiespaciados entre 0 y 1 -> [0. , 0.25, 0.5 , 0.75, 1.]
+  ````
+* **Con números aleatorios:**
+  ````
+  aleatorio = np.random.rand(3, 3)             # Matriz 3x3 con decimales aleatorios entre 0 y 1
+  ````
 
+---
 
+## 4. Atributos del Array
 
-## 4. Atributos del array
+Cada objeto array contiene propiedades nativas que permiten inspeccionar su estructura física en cualquier momento (nota que se accede a ellos sin usar paréntesis):
 
-Cuando tienes un array, puedes inspeccionar sus propiedades utilizando sus atributos nativos (nota que no llevan paréntesis al final):
-- ndim: Indica el número de dimensiones (ejes). Un vector tiene 1, una tabla tiene 2.
-- shape: Devuelve una tupla indicando el tamaño de cada dimensión (filas, columnas).
-- size: Indica el número total de elementos que contiene el array.
-- dtype: Muestra el tipo de datos de los elementos internos.
+* **`ndim`:** Indica el número total de dimensiones o ejes (un vector tiene 1, una tabla o matriz tiene 2).
+* **`shape`:** Devuelve una tupla que detalla el tamaño de cada dimensión en el formato `(filas, columnas)`.
+* **`size`:** Indica la cantidad total de elementos individuales que contiene el array.
+* **`dtype`:** Muestra el tipo de dato asignado a los elementos internos.
+
 ````
 mi_matriz = np.array([[1, 2, 3], [4, 5, 6]])
-print(mi_matriz.ndim)  # 2
-print(mi_matriz.shape) # (2, 3) -> 2 filas y 3 columnas
-print(mi_matriz.size)  # 6
+print(mi_matriz.ndim)   # Resultado: 2
+print(mi_matriz.shape)  # Resultado: (2, 3) -> 2 filas y 3 columnas
+print(mi_matriz.size)   # Resultado: 6
 ````
 
+---
 
+## 5. Indexado y Slicing (Rebanado)
 
-## 5. Indexado
-
-El indexado sirve para seleccionar un único elemento del array. Al igual que en Python, el conteo empieza en 0.
-- En 1D, funciona igual que las listas: array[0].
-- En 2D, se utiliza la nomenclatura [fila, columna].
+### Indexado (Selección Única)
+Sirve para extraer o modificar un único elemento. Al igual que en Python elemental, el conteo de posiciones empieza en `0`.
+* **En arrays 1D (Vectores):** Funciona igual que en las listas ordinarias: `array[posicion]`.
+* **En arrays 2D (Matrices):** Se utiliza la sintaxis **`[fila, columna]`**.
 
 ````
 matriz = np.array([[10, 20], [30, 40]])
-print(matriz[0, 1]) # Elemento en fila 0, columna 1 -> 20
-print(matriz[1, 0]) # Elemento en fila 1, columna 0 -> 30
+print(matriz[0, 1])  # Fila 0, Columna 1 -> 20
+print(matriz[1, 0])  # Fila 1, Columna 0 -> 30
 ````
 
+### Slicing (Extracción de Subarrays)
+Permite cortar fragmentos del array usando la notación matemática estándar `[inicio:fin:paso]`. Cuando trabajamos en dos dimensiones, los cortes de filas y columnas se separan mediante una coma: **`[filas_inicio:filas_fin, columnas_inicio:columnas_fin]`**.
 
-
-## 6. Slicing y subarrays
-
-El slicing (rebanado) permite extraer fragmentos o secciones del array usando el formato [inicio:fin:paso].
-Si es una matriz bidimensional, se separa la rebanada de filas y columnas con una coma: [filas_inicio:filas_fin, columnas_inicio:columnas_fin].
 ````
 matriz = np.array([[1, 2, 3], , 
                    [7, 8, 9]])
 
 # Extraer las primeras dos filas y las dos primeras columnas
-sub_matriz = matriz[0:2, 0:2]
-# Resultado: [[1, 2], 
-#]
+sub_matriz = matriz[0:2, 0:2]  # Resultado: [[1, 2], [4, 5]]
 
-# Extraer una fila completa usando ':'
-primera_fila = matriz[0, :] # [1, 2, 3]
+# Extraer una fila completa usando el operador ':'
+primera_fila = matriz[0, :]    # Resultado: [1, 2, 3]
 ````
 
+---
 
+## 6. Reshape (Cambio de Forma)
 
-## 7. Reshape
+El método **`.reshape()`** modifica la disposición de filas y columnas de un array sin alterar sus datos internos. 
 
-El método .reshape() te permite cambiar la forma (filas y columnas) de un array sin modificar sus datos internos. La única condición obligatoria es que el tamaño total (size) debe mantenerse igual.
+* **Regla de oro:** El número total de elementos (`size`) del array original y del nuevo array transformado debe ser estrictamente idéntico.
+
 ````
-vector = np.array([1, 2, 3, 4, 5, 6]) # Tamaño 6
-matriz_nueva = vector.reshape((2, 3)) # Transforma a 2 filas y 3 columnas
+vector = np.array([1, 2, 3, 4, 5, 6])  # Tamaño original: 6
+matriz_nueva = vector.reshape((2, 3))  # Transforma a 2 filas y 3 columnas
 
 print(matriz_nueva)
+# Resultado:
 # [[1, 2, 3],
 #]
 ````
 
+---
 
+## 7. Tipos de Datos (Dtypes)
 
-## 8. Tipos de los datos
+NumPy requiere homogeneidad para optimizar el uso de memoria RAM y el caché de la CPU. Los tipos de datos nativos más habituales son `int32`, `int64`, `float64` y `bool`.
 
-Como NumPy es homogéneo, asigna tipos fijos muy específicos para optimizar la memoria. Algunos de los más comunes son int32, int64, float64, y bool.
-Puedes forzar el tipo al crear el array o cambiarlo después usando .astype():
+Puedes forzar el tipo de dato al momento de inicializar el array o convertir uno ya existente mediante el método **`.astype()`**:
+
 ````
-# Crear forzando números flotantes (decimales)
-enteros = np.array([1, 2, 3], dtype='float64') # [1., 2., 3.]
+# Forzar tipo flotante (decimal) en la creación
+enteros_a_float = np.array([1, 2, 3], dtype='float64')  # Resultado: [1., 2., 3.]
 
-# Convertir un array existente de decimales a enteros
+# Convertir un array existente truncando los decimales (sin redondear)
 decimales = np.array([1.9, 2.5, 3.1])
-enteros_nuevos = decimales.astype('int32') # [1, 2, 3] (Trunca el decimal, no redondea)
+enteros_nuevos = decimales.astype('int32')              # Resultado: [1, 2, 3]
 ````
 
+---
 
+## 8. Concatenación y Splitting
 
-## 9. Concatenado
+### Concatenación (Unión)
+Unir dos o más arrays se realiza a través de la función `np.concatenate()`. En espacios bidimensionales, es obligatorio determinar el eje de unión (`axis`):
+* **`axis=0`:** Unión vertical (añade filas hacia abajo).
+* **`axis=1`:** Unión horizontal (añade columnas hacia los lados).
 
-Unir múltiples arrays en uno solo se logra mediante np.concatenate(). En matrices bidimensionales, debes especificar el eje (axis):
-- axis=0: Une verticalmente (añade filas).
-- axis=1: Une horizontalmente (añade columnas).
 ````
 a = np.array([[1, 2]])
 b = np.array([[3, 4]])
 
-# Concatenar verticalmente
-vertical = np.concatenate([a, b], axis=0)
-# [[1, 2],
-#]
-
-# Concatenar horizontalmente
-horizontal = np.concatenate([a, b], axis=1)
-# [[1, 2, 3, 4]]
+vertical = np.concatenate([a, b], axis=0)    # Resultado: [[1, 2], [3, 4]]
+horizontal = np.concatenate([a, b], axis=1)  # Resultado: [[1, 2, 3, 4]]
 ````
 
-
-
-## 10. Sustitución
-
-Cambiar el valor de elementos específicos es muy directo asignando un nuevo valor a la posición indexada o al subarray seleccionado.
-````
-x = np.array([10, 20, 30])
-x[1] = 99 # Sustituye el 20 por 99 -> [10, 99, 30]
-
-# Sustitución masiva con condiciones (Filtrado booleano)
-edades = np.array([15, 25, 12, 40])
-edades[edades < 18] = 0 # Sustituye cualquier menor de 18 por 0 -> [0, 25, 0, 40]
-````
-
-
-
-## 11. Copias
-
-¡Cuidado aquí! Si haces un slicing (sub = matriz[0:2]) y modificas sub, la matriz original también cambiará. En NumPy, los subarrays son solo "vistas" de los datos originales para ahorrar memoria.
-Si quieres modificar un fragmento sin alterar el original, debes usar explícitamente .copy():
-````
-original = np.array([1, 2, 3])
-
-# Copia real e independiente
-copia_segura = original.copy()
-copia_segura[0] = 99 
-
-print(original)     # [1, 2, 3] (Se mantiene intacto)
-print(copia_segura) # [99, 2, 3]
-````
-
-
-
-## 12. Splitting
-
-El splitting es la operación inversa a la concatenación: divide un único array en múltiples arrays pequeños. Se realiza con np.split(), np.vsplit() (corte vertical) o np.hsplit() (corte horizontal).
+### Splitting (División)
+Es la operación inversa a la concatenación y fragmenta un único array en múltiples secciones más pequeñas mediante las utilidades `np.split()`, `np.vsplit()` (corte vertical) o `np.hsplit()` (corte horizontal).
 
 ````
 datos = np.array([10, 20, 30, 40, 50, 60])
-# Dividir en el índice 2 y en el índice 4
+# Divide el array en los índices de corte 2 y 4
 parte1, parte2, parte3 = np.split(datos, [2, 4])
 
-print(parte1) # [10, 20]
-print(parte2) # [30, 40]
-print(parte3) # [50, 60]
+print(parte1)  # Resultado: [10, 20]
+print(parte2)  # Resultado: [30, 40]
+print(parte3)  # Resultado: [50, 60]
 ````
 
+---
 
+## 9. Sustitución y Copias en Memoria
 
-## 13. Agregaciones
+### Sustitución Directa y Filtrado Booleano
+Modificar datos es un proceso directo asignando nuevos valores a las coordenadas o subarrays seleccionados. Es muy común el **filtrado booleano** para aplicar cambios masivos basados en una condición lógica:
 
-Las agregaciones son funciones matemáticas rápidas integradas que resumen o calculan estadísticas sobre los elementos de un array.
-- np.sum(): Suma todos los elementos.
-- np.min() / np.max(): Encuentra los valores mínimos y máximos.
-- np.mean(): Calcula la media (promedio).
-- np.std(): Calcula la desviación estándar.
+````
+x = np.array([10, 20, 30])
+x[1] = 99  # Reemplaza el valor en el índice 1 -> [10, 99, 30]
+
+# Sustitución condicional masiva
+edades = np.array([15, 25, 12, 40])
+edades[edades < 18] = 0  # Convierte cualquier número menor de 18 en 0 -> [0, 25, 0, 40]
+````
+
+### El peligro de las "Vistas" vs `.copy()`
+⚠️ **¡Atención!** En NumPy, cuando realizas un corte o *slicing* numérico (ej. `sub = matriz[0:2]`), **no estás creando un objeto nuevo**, sino una "vista" orientada al bloque de memoria original. Si modificas `sub`, la matriz de origen cambiará también.
+
+Si necesitas un fragmento completamente independiente que no afecte al objeto raíz, debes clonarlo explícitamente con **`.copy()`**:
+
+````
+original = np.array([1, 2, 3])
+
+# Clonación real e independiente en memoria
+copia_segura = original.copy()
+copia_segura[0] = 99 
+
+print(original)      # Resultado: [1, 2, 3] (Se mantiene intacto)
+print(copia_segura)  # Resultado: [99, 2, 3]
+````
+
+---
+
+## 10. Agregaciones y Estadísticas
+
+NumPy incorpora funciones matemáticas sumamente veloces capaces de procesar estructuras de datos enteras o colapsar información en torno a un eje estadístico determinado:
+
+* **`np.sum()`**: Sumatoria de los elementos.
+* **`np.min() / np.max()`**: Encuentra los valores mínimos y máximos.
+* **`np.mean()`**: Calcula la media (promedio).
+* **`np.std()`**: Calcula la desviación estándar.
 Puedes aplicarlos a todo el array o a un eje específico (por ejemplo, calcular la suma solo de cada columna usando axis=0).
 ````
 numeros = np.array([[1, 2], [3, 4]])
@@ -212,6 +234,9 @@ numeros = np.array([[1, 2], [3, 4]])
 print(np.sum(numeros))          # 10 (Suma total)
 print(np.mean(numeros, axis=0)) # [2. , 3.] (Media de cada columna)
 ````
+
+
+
 
 
 
