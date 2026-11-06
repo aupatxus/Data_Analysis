@@ -713,127 +713,105 @@ Las operaciones entre un `DataFrame` (2D) y una `Serie` (1D) siguen reglas de di
 <hr>
 
 
+
+
+
 # Valores nulos en Python
 
+El tratamiento de datos faltantes o nulos (también conocidos en ciencia de datos como *missing*, *NaN* o *NA*) es una de las tareas más comunes e importantes en el análisis de datos, ya que los conjuntos de datos del mundo real rara vez se presentan limpios u homogéneos.
 
-En Python, la representación y el manejo de los valores nulos dependen del entorno en el que estés trabajando: el entorno nativo de Python o el análisis de datos con librerías como Pandas y NumPy.
-En Python puro, el valor nulo se representa con la palabra clave None, mientras que en ciencia de datos se utiliza NaN (Not a Number) para gestionar datos faltantes en estructuras numéricas o tablas.
+---
 
+## 1. Estrategias Generales para Representar Datos Faltantes
 
+En programación y análisis de datos, existen dos enfoques principales para indicar que un valor está ausente en una tabla o estructura de datos:
 
-## 1. Python Puro: None
+*   **Máscaras:** Consiste en la utilización de matrices booleanas completamente independientes o la asignación de bits locales dedicados a indicar el estado nulo de un valor. Este enfoque añade una sobrecarga extra tanto de almacenamiento en memoria como de capacidad de cálculo.
+*   **Valores Centinela:** Se trata de elegir convenciones específicas de datos. Puede ser una solución local (como indicar un entero faltante con el número `-9999`) o una convención global (como el uso de `NaN`). Los centinelas reducen el rango de valores válidos representables por el tipo de dato y requieren una lógica de CPU/GPU adicional que a menudo no está optimizada.
 
-None es un objeto especial de tipo NoneType que indica la ausencia de valor o que una variable está vacía.
-* Cómo verificarlo: Siempre se debe evaluar utilizando el operador de identidad is o is not.
-````
-variable = None
+### Comparativa entre Sistemas
+*   El lenguaje **R** utiliza patrones de bits reservados dentro de cada tipo de datos como valores centinela nativos para indicar la ausencia de datos.
+*   El sistema **SciDB** utiliza un byte adicional adjunto a cada celda que indica explícitamente un estado NA.
 
-if variable is None:
-    print("La variable es nula")
+---
 
-if variable is not None:
-    print("La variable tiene un valor")
-````
+## 2. El Enfoque de Pandas y su Dependencia de NumPy
 
+La forma en que Pandas gestiona la nulidad está directamente limitada por su dependencia del paquete **NumPy**, el cual carece de una noción integrada de valores nulos para tipos de datos que no sean de punto flotante (*float*). 
 
-## 2. Ciencia de Datos: NaN (Pandas y NumPy)
+Para evitar la sobrecarga inmanejable de bifurcar las más de 14 precisiones de enteros de NumPy o utilizar arrays enmascarados complejos, **Pandas optó por utilizar centinelas basados en dos objetos existentes en Python: `None` y `NaN`**.
 
-Cuando trabajas con tablas de datos (DataFrames), los valores nulos numéricos se representan como NaN (un tipo especial de float). Para gestionarlos eficientemente, las herramientas principales son las siguientes:
+### `None`: El Faltante Pythónico
+Es un objeto especial de tipo `NoneType` (un *singleton* nativo de Python) que indica la ausencia de valor o que una variable está vacía.
+*   **Restricciones de almacenamiento:** Solo se puede emplear en arrays de tipo `object` (arrays de objetos de Python).
+*   **Rendimiento:** Genera mucha sobrecarga computacional. Las operaciones a nivel de Python son significativamente más lentas que las operaciones optimizadas en tipos nativos de NumPy (como `int` o `float`).
+*   **Errores aritméticos:** Realizar agregaciones o agregaciones aritméticas (`+`, `sum()`, `min()`) en un array que contenga un objeto `None` provocará un error de tipo (`TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'`), debido a que la operación entre un entero y un objeto `None` no está definida.
 
-Detección de nulos
+### `NaN`: El Faltante Numérico (*Not a Number*)
+Es un valor especial de punto flotante reconocido por todos los sistemas bajo la representación estándar de punto flotante IEEE.
+*   **Rendimiento:** Al ser un tipo nativo de punto flotante (`float64`), los arrays que albergan `NaN` soportan operaciones vectorizadas muy rápidas delegadas en código compilado.
+*   **Efecto "Virus":** El valor `NaN` actúa como un virus de datos en operaciones aritméticas. Cualquier operación matemática que involucre un `NaN` dará como resultado inexorable otro `NaN` (`1 + np.nan = nan` o `0 * np.nan = nan`).
+*   **Agregaciones estadísticas:** Las agregaciones estándar sobre arrays con `NaN` no devuelven error, pero devuelven `nan`, invalidando el cálculo estadístico (`vals.sum(), vals.min(), vals.max() -> (nan, nan, nan)`). 
+*   **Funciones Especiales de NumPy:** Para solventarlo, NumPy dispone de funciones específicas que ignoran estos valores faltantes: `np.nansum()`, `np.nanmin()`, `np.nanmax()`, `np.nanprod()` y `np.nanmean()`.
+*   **Limitación de Tipo:** `NaN` es específicamente un valor de punto flotante; no hay un valor NaN equivalente nativo para enteros, cadenas u otros tipos en el núcleo de NumPy.
 
-Para saber cuántos datos faltan en un conjunto de datos, se combinan funciones de detección con sumatorias:
-````
-import pandas as pd
-import numpy as np
+---
 
-# Crear un DataFrame de ejemplo
-data = {'Nombre': ['Ana', 'Luis', 'Carlos'], 'Edad': [23, np.nan, 31]}
-df = pd.DataFrame(data)
+## 3. Conversión Automática de Tipos (*Upcasting*)
 
-# Detectar nulos (devuelve True/False)
-print(df.isna())  # O también df.isnull()
+Pandas opera con `None` y `NaN` de forma casi intercambiable. Cuando un usuario introduce un valor nulo (`None` o `np.nan`) en una estructura cuyo tipo de dato original no admite la nulidad de forma nativa, Pandas realiza un **upcasting** o conversión automática de tipo de manera transparente:
 
-# Contar cuántos nulos hay por cada columna
-print(df.isna().sum())
-````
+| Clase de Tipo original | Conversión al almacenar un NA | Valor Centinela NA asignado |
+| :--- | :--- | :--- |
+| **`floating`** (Decimales) | Sin cambios | `np.nan` |
+| **`object`** (Objetos/Strings) | Sin cambios | `None` o `np.nan` |
+| **`integer`** (Enteros) | Convierte la columna a **`float64`** | `np.nan` |
+| **`boolean`** (Booleanos) | Convierte la columna a **`object`** | `None` o `np.nan` |
 
+*Nota:* En Pandas, los datos de texto (cadenas/strings) se guardan siempre de forma predeterminada bajo el dtype `object`. Además de convertir el array de enteros a punto flotante, Pandas convierte automáticamente cualquier objeto `None` introducido en un valor `NaN`.
 
+---
 
-### Limpieza y tratamiento de nulos
+## 4. Funciones Principales para Operar con Nulos en Pandas
 
-Una vez identificados, existen dos estrategias principales para solucionar la falta de datos:
-* Eliminar las filas con nulos (dropna): Borra cualquier fila que contenga al menos un valor vacío.
-````
-df_limpio = df.dropna()
-````
+Pandas cuenta con herramientas integradas fundamentales para gestionar la falta de datos de manera eficiente:
 
-* Reemplazar o imputar los nulos (fillna): Rellena los espacios vacíos con un valor fijo, con la media de la columna o con métodos de propagación.
+### A. Detección (`isnull` / `isna` / `notnull`)
+*   **`isnull()` / `isna()`**: Evalúan la estructura y devuelven una máscara booleana con valores `True` en aquellas celdas donde el dato está ausente (`NaN` o `None`) y `False` donde hay datos válidos.
+*   **`notnull()`**: Realiza exactamente la operación inversa, marcando con `True` los valores válidos y con `False` las ausencias.
+*   **Filtrado por máscara:** Las máscaras booleanas resultantes pueden usarse directamente entre corchetes para indexar y filtrar los datos válidos de una estructura (ej. `data[data.notnull()]` o `data[~data.isnull()]`).
+*   **Conteo de nulos:** Es una práctica común encadenar la función de detección con una sumatoria para cuantificar las ausencias por cada columna: `df.isna().sum()`.
 
-#### Rellenar con un valor específico (ej. cero o un texto)
-````
-df['Edad'] = df['Edad'].fillna(0)
-````
-#### Rellenar con la media de esa columna
-````
-df['Edad'] = df['Edad'].fillna(df['Edad'].mean())
-````
+### B. Eliminación (`dropna`)
+Permite filtrar, descartar y limpiar las estructuras eliminando los registros nulos. Dado que en un `DataFrame` bidimensional no se pueden borrar celdas aisladas sin romper la estructura de la tabla, `dropna()` elimina filas o columnas completas bajo los siguientes parámetros de control:
 
+*   **`axis`**: Determina la dirección del filtrado. Por defecto es `0` o `'rows'` (elimina filas completas que tengan nulos). Configurado en `1` o `'columns'` elimina las columnas completas que tengan nulos.
+*   **`how`**: Define el criterio de descarte. Su valor por defecto es `'any'` (elimina la fila/columna si tiene al menos un valor nulo). Puede cambiarse a `'all'` para indicar que solo se elimine la fila o columna si *todos* sus elementos son nulos de forma simultánea.
+*   **`thresh`**: Configura un umbral numérico estricto. Permite especificar de forma precisa el número mínimo de valores **no nulos** (válidos) requeridos para que la fila o columna se conserve. Por ejemplo, `df.dropna(axis='rows', thresh=len(df.columns)*0.75)` mantendrá solo las filas que tengan al menos un 75% de datos válidos.
+*   **`inplace`**: Por defecto, `dropna()` devuelve una copia filtrada y mantiene la estructura original intacta. Si se establece `inplace=True`, la estructura original se modifica directamente en memoria (`data.dropna(inplace=True)`).
 
+### C. Reemplazo e Imputación (`fillna` / `ffill` / `bfill`)
+Devuelve una copia de la estructura de datos sustituyendo los nulos por valores válidos bajo diferentes estrategias:
 
-# Tratamiento de Datos Nulos
-
-Los datos del mundo real rara vez son limpios y homogéneos; suelen contener datos faltantes conocidos genéricamente como valores nulos, missing, NaN o NA.
-
-## 1. Estrategias Generales para Datos Faltantes
-
-Existen dos enfoques principales en la programación para representar la ausencia de datos:
-* Máscaras: Matrices booleanas independientes o bits locales dedicados a indicar globalmente si un valor es nulo. Añaden sobrecarga de almacenamiento y cálculo.
-* Valores Centinela: Convenciones específicas de los datos (como usar -9999) o globales como NaN (Not a Number). Reducen el rango de valores válidos y no están disponibles para todos los tipos de datos. El lenguaje R, por ejemplo, usa centinelas integrados por cada tipo de dato.
-
-## 2. El Enfoque de Pandas
-
-Debido a que NumPy no tiene soporte nativo de valores NA para tipos no flotantes, Pandas optó por un compromiso y adoptó dos centinelas existentes en Python:
-* None (Faltante Pythonico): Es un objeto singleton de Python. Solo se puede usar en arrays de tipo object. Genera mucha sobrecarga computacional en comparación con los tipos nativos y produce errores (TypeError) al intentar realizar operaciones aritméticas o agregaciones (como .sum()).
-* NaN (Faltante Numérico): Es un valor especial de punto flotante estándar (IEEE). Permite operaciones rápidas en código compilado, pero actúa como un "virus": cualquier operación aritmética con un NaN da como resultado otro NaN.
-
-Conversión Automática (Upcasting)
-
-Pandas gestiona ambos de forma casi intercambiable. Si introduces un nulo en un tipo de dato que no lo admite nativamente, Pandas realiza una conversión automática:
-````
-Clase de Tipo	        	Conversión al almacenar un NA		Valor Centinela NA
-floating (Decimales)		Sin cambios	                    	np.nan
-object (Objetos/Strings)	Sin cambios	                    	None o np.nan
-integer (Enteros)	        Convierte a float64	            	np.nan
-boolean (Booleanos)	        Convierte a object	            	None o np.nan
-````
-Nota: Los datos de texto (cadenas/strings) siempre se guardan con el dtype object.
-
-## 3. Funciones Principales para Operar con Nulos
+*   **Valor Fijo o Escalar:** Rellena los espacios vacíos con una constante fija, como el número cero (`df.fillna(0)`) o una cadena de texto (`df.fillna("nuevo valor")`).
+*   **Imputación Estadística:** Rellena los nulos utilizando métricas calculadas a partir de los datos válidos de la propia columna, como su promedio estadístico: `df[1].fillna(df[1].mean())`.
+*   **Métodos de Propagación de Posición:** Rellenan los nulos basándose en la proximidad de otros datos contiguos válidos:
+    *   **`ffill()`** (*forward-fill*): Propaga el último valor válido detectado hacia adelante para cubrir los nulos siguientes.
+    *   **`bfill()`** (*back-fill*): Propaga el siguiente valor válido detectado hacia atrás para cubrir los nulos precedentes.
+    *   *Nota de dirección:* En ambos métodos se puede parametrizar el sentido de la propagación (horizontal o vertical) modificando el argumento `axis` (ej. `df.bfill(axis=1)` realiza un relleno hacia atrás horizontal). Si un valor nulo se encuentra al extremo de la estructura y no cuenta con un valor previo (en `ffill`) o posterior (en `bfill`) para copiarse, el valor `NaN` permanecerá inalterado. En versiones antiguas de Pandas, estas operaciones se realizaban mediante parámetros internos dentro de la función principal: `df.fillna(method='ffill')`.
 
 
-### A. Detección
 
-* isnull(): Genera una máscara booleana devolviendo True donde hay un valor nulo.
-* notnull(): Lo opuesto a isnull(), devuelve True en las posiciones con datos válidos. Las máscaras booleanas se pueden usar directamente para filtrar las estructuras de datos.
 
-### B. Eliminación (dropna)
 
-Permite filtrar y descartar los datos nulos. En un DataFrame, al no poder borrarse celdas individuales, se eliminan filas o columnas completas mediante parámetros:
-* axis: Por defecto es 0 o 'rows' (elimina filas); configurado en 1 o 'columns' elimina las columnas que tengan nulos.
-* how: Determina el criterio de borrado. Por defecto es 'any' (borra si hay al menos un nulo). Puede cambiarse a 'all' para borrar solo si toda la fila/columna es nula.
-* thresh: Permite establecer de forma precisa un número mínimo de valores no nulos requeridos para conservar la fila o columna.
 
-### C. Reemplazo e Imputación (fillna)
-
-Devuelve una copia de la estructura con los valores nulos reemplazados:
-* Valor fijo: Rellenar con un escalar como el cero (df.fillna(0)) o con estadísticos estadísticos de una columna (df.fillna(df[1].mean())).
-* Propagación: Rellenar según la posición de otros datos usando el parámetro method:
-	* ffill (forward-fill): Propaga el último valor válido hacia adelante.
-	* bfill (back-fill): Propaga el siguiente valor válido hacia atrás. (También se puede parametrizar el sentido de la propagación con el argumento axis).
 
 
 <hr>
+
+
+
+
 
 
 
