@@ -1069,12 +1069,168 @@ Se lleva a cabo un ejercicio de limpieza y combinación (*Data Wrangling*) utili
 4. **Análisis de Datos:** Filtrado del censo del año **2010** para la población `total` mediante la función `.query()`.
 5. **Cálculo Final:** Creación de la métrica `density` (`population / area (sq. mi)`) y ordenación de los resultados.
 
-### 📊 Resultados Clave (Censo 2010)
 
-* **Estados/Territorios con mayor densidad:**
-  1. District of Columbia (~8,898 hab/mi²)
-  2. Puerto Rico (~1,058 hab/mi²)
-  3. New Jersey (~1,009 hab/mi²)
 
-* **Estados con menor densidad:**
-  * Alaska (~1.08 hab/mi²), posicionándose como el estado con menor densidad poblacional con diferencia.
+
+
+<hr>
+
+
+
+
+# Obtención de Datos Mediante APIs en Python
+
+Este repositorio contiene una guía detallada y ejemplos prácticos sobre cómo consumir interfaces de programación de aplicaciones (**APIs**) utilizando Python, centrándose principalmente en el protocolo HTTP y la biblioteca `requests`.
+
+---
+
+## 1. Introducción a las APIs
+
+Una **API (Application Programming Interface)** es un conjunto de reglas y protocolos que permiten a diferentes aplicaciones interactuar y comunicarse entre sí. Actúan como un puente técnico que permite a un software solicitar datos o realizar acciones en un servidor remoto de manera estructurada, automatizada y estandarizada, sin necesidad de conocer los detalles internos de la implementación del servidor.
+
+---
+
+## 2. El Protocolo HTTP y la Arquitectura Cliente-Servidor
+
+El **Protocolo de Transferencia de Hipertexto (HTTP)** es la norma subyacente que rige la World Wide Web para la transmisión y solicitud de documentos e información. La comunicación se basa en un ciclo continuo de **Petición (Request)** y **Respuesta (Response)**:
+
+1. **Cliente (Frontend):** Envía una petición HTTP formal al servidor web.
+2. **Servidor (Backend / Base de datos):** Procesa la solicitud, interactúa con sus propios servicios o bases de datos si es necesario, y devuelve una respuesta estructurada al cliente.
+
+### Métodos HTTP más comunes
+Para indicarle al servidor qué acción queremos realizar sobre un recurso, se utilizan diferentes verbos o métodos de solicitud:
+
+*   **GET:** Se utiliza exclusivamente para recuperar o leer datos de un servidor. No modifica el estado del recurso.
+*   **POST:** Se usa para enviar nuevos datos al servidor con el fin de crear un nuevo recurso.
+*   **PUT:** Se emplea para actualizar o reemplazar por completo un recurso existente en el servidor.
+*   **DELETE:** Se utiliza para eliminar un recurso específico del servidor.
+
+### Parámetros y Códigos de Estado (Status Codes)
+Las peticiones HTTP pueden incluir **parámetros** (en la URL o en el cuerpo) para filtrar o especificar los datos requeridos. Como respuesta, el servidor devuelve un código numérico estándar que indica el resultado de la operación:
+
+*   **2xx (Éxito):** Por ejemplo, `200 OK` significa que la petición fue procesada correctamente.
+*   **4xx (Errores del Cliente):** Por ejemplo, `404 Not Found` (el recurso no existe) o `429 Too Many Requests` (límite de peticiones excedido).
+*   **5xx (Errores del Servidor):** El servidor falló al intentar procesar una solicitud que aparentemente era válida.
+
+---
+
+## 3. La Biblioteca `requests` en Python
+
+La biblioteca `requests` es el estándar de facto en Python para realizar solicitudes HTTP debido a su sintaxis intuitiva y humana en comparación con los módulos nativos del lenguaje.
+
+### Instalación
+Para incorporar la biblioteca al entorno de desarrollo se ejecuta:
+```bash
+pip install requests
+```
+
+### Importación básica de librerías esenciales
+```python
+import requests
+import zipfile
+import pandas as pd
+```
+
+---
+
+## 4. Ejemplos Prácticos de Peticiones y Manejo de Respuestas
+
+### 4.1. Descarga y Almacenamiento de Archivos Binarios (Imágenes)
+Es posible realizar una petición `GET` para descargar elementos binarios de la web utilizando la propiedad `.content` de la respuesta, la cual obtiene los datos directamente en bytes:
+
+```python
+# Definición de la URL del recurso
+url = "https://googleusercontent.com"
+
+# Realizar la petición GET
+image = requests.get(url)
+
+# Comprobar el código de estado (debería retornar <Response [200]>)
+print(image)
+
+# Imprimir el contenido en bytes crudos (b'\xff\xd8...')
+print(image.content)
+
+# Guardar los bytes en un archivo local en modo de escritura binaria ('wb')
+with open("data/dotcsv.jpg", 'wb') as f:
+    f.write(image.content)
+```
+
+### 4.2. Lectura Directa de un CSV en la Web usando `pandas`
+La biblioteca `pandas` permite consumir URLs directamente para estructurar un conjunto de datos en un objeto `DataFrame` de manera inmediata sin necesidad de usar `requests` explícitamente:
+
+```python
+# Cargar un archivo CSV directamente desde una URL pública
+df_inflation = pd.read_csv('https://datahub.io')
+
+# Visualizar las primeras 5 filas del DataFrame
+print(df_inflation.head())
+
+# Filtrar el DataFrame según condiciones específicas
+df_spain = df_inflation[df_inflation['Country'] == \"Spain\"]
+print(df_spain)
+```
+
+### 4.3. Consumo de una API Pública con Respuestas JSON
+La mayoría de las APIs modernas devuelven la información en formato **JSON (JavaScript Object Notation)**. La biblioteca `requests` cuenta con el método incorporado `.json()` para transformar esta respuesta en un diccionario nativo de Python:
+
+```python
+# Función reutilizable para obtener y decodificar datos JSON
+def get_joke(url):
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()  # Convierte el formato JSON a diccionario de Python
+        return data
+    else:
+        print("Error en la solicitud: ", response.status_code)
+
+# Endpoint base de la API de Chuck Norris
+url_random = "https://chucknorris.io"
+print(get_joke(url_random))
+
+# Ejemplo de uso de parámetros directamente integrados en el Endpoint (Filtro por categoría)
+url_food = "https://chucknorris.io?category=food"
+print(get_joke(url_food))
+```
+
+### 4.4. Envío de Parámetros Dinámicos (API de Clima)
+En lugar de concatenar texto manualmente en la URL, se recomienda utilizar el parámetro `params` del método `requests.get()`, el cual acepta un diccionario y construye automáticamente la query string (por ejemplo: `?latitude=40.4165&longitude=-3.7026...`):
+
+```python
+url_weather = "https://open-meteo.com"
+
+# Estructura de parámetros requeridos por el servidor
+parametros = {
+    "latitude": 40.4165,
+    "longitude": -3.7026,
+    "current_weather": "true"
+}
+
+respuesta = requests.get(url_weather, params=parametros)
+
+if respuesta.status_code == 200:
+    datos = respuesta.json()
+    clima = datos["current_weather"]
+    
+    print(f"Temperatura actual: {clima['temperature']} °C")
+    print(f"Velocidad del viento: {clima['windspeed']} km/h")
+else:
+    print("Error de conexión:", respuesta.status_code)
+```
+
+### 4.5. Procesamiento y Estructuración de datos complejos en DataFrames
+Cuando una API devuelve colecciones de datos complejas dentro de un objeto JSON, podemos aislar la lista de interés y transformarla inmediatamente en una tabla manipulable:
+
+```python
+space_url = "http://thespacedevs.com"
+response_sp = requests.get(space_url)
+
+if response_sp.status_code == 200:
+    # Convertir los resultados de la API directamente en un DataFrame de Pandas
+    df_astronauts = pd.DataFrame(response_sp.json()['results'])
+    print(df_astronauts.head())
+else:
+    print(f"Estado de la respuesta: {response_sp.status_code}")
+```
+
