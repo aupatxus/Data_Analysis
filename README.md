@@ -1161,3 +1161,230 @@ else:
     print(f"Estado de la respuesta: {response_sp.status_code}")
 ```
 
+
+
+
+
+<hr>
+
+
+
+
+
+# Python: Lectura, Escritura y Gestión de Archivos
+
+Este repositorio contiene los mecanismos fundamentales para interactuar con el almacenamiento local mediante Python. Aprenderás a abrir y modificar ficheros planos, procesar datos tabulares (CSV, Excel), intercambiar estructuras de objetos complejos (JSON, Pickle), descomprimir archivos comprimidos (ZIP) y automatizar el sistema de archivos del sistema operativo a través del módulo `os`.
+
+---
+
+## Índice
+1. [Fundamentos de Archivos y Rutas](#1-fundamentos-de-archivos-y-rutas)
+2. [Gestión Nativa de Ficheros (`open`)](#2-gestión-nativa-de-ficheros-open)
+3. [Formatos Tabulares I: Archivos CSV](#3-formatos-tabulares-i-archivos-csv)
+4. [Formatos Tabulares II: Archivos Excel](#4-formatos-tabulares-ii-archivos-excel)
+5. [Notación de Objetos JSON](#5-notación-de-objetos-json)
+6. [Ficheros de Texto Plano (`.txt` y `.tsv`)](#6-ficheros-de-texto-plano-txt-y-tsv)
+7. [Archivos Comprimidos (`.zip`)](#7-archivos-comprimidos-zip)
+8. [Serialización de Objetos (`pickle`)](#8-serialización-de-objetos-pickle)
+9. [Codificación de Caracteres (`Encoding`)](#9-codificación-de-caracteres-encoding)
+10. [Automatización del Sistema Operativo (`os` y `shutil`)](#10-automatización-del-sistema-operativo-os-y-shutil)
+
+---
+
+## 1. Fundamentos de Archivos y Rutas
+
+Un **archivo es un conjunto de datos almacenados en el ordenador en forma de bits**. Toda la información se organiza bajo un formato específico que el ordenador traduce a binario para su procesamiento. 
+
+### Anatomía Estructural de un Archivo
+*   **Header (Cabecera):** Almacena los metadatos esenciales del archivo, como su nombre, tamaño o tipo de formato.
+*   **Data (Contenido):** El cuerpo de datos o contenido propiamente dicho del archivo.
+*   **End of file (EOF):** Un carácter especial integrado que indica de forma inequívoca el final del archivo.
+
+### Rutas de Acceso (File Paths)
+Para acceder a un archivo se requiere conocer tres elementos: el **Folder path** (directorio de ubicación), el **File name** (nombre) y su **Extension** (sufijo tras el punto).
+*   **Rutas Relativas:** Toman como referencia el directorio actual en el que está apuntando el programa de Python. El uso de `..` retrocede un nivel hacia atrás en el árbol de carpetas (ej: `../dog_breeds.txt`).
+*   **Rutas Absolutas:** Describen la ruta completa desde la raíz del sistema de discos (ej: `C:/Users/usuario/...`). **No se recomienda su uso** en desarrollo de software porque rompe la portabilidad del código al ejecutarlo en otros ordenadores.
+
+---
+
+## 2. Gestión Nativa de Ficheros (`open`)
+
+Python cuenta con funciones *built-in* nativas que permiten manipular archivos directamente sin importar librerías externas mediante la función **`open()`**.
+
+### Sintaxis y Contexto Seguro (`with open`)
+Modificar o leer archivos manteniéndolos abiertos de forma persistente genera bloqueos en memoria y errores. La buena práctica dicta usar la sentencia de control de contexto **`with open()`**. El archivo se abre, se vuelcan las operaciones deseadas en su bloque indentado y, al salir de él, Python **cierra automáticamente el archivo** de forma segura.
+
+```python
+with open("filename.txt", "mode") as file_object:
+    # Bloque de operaciones internas
+    pass
+```
+
+### Modos Fundamentales de Apertura
+*   **`'r'` (Read):** Modo por defecto. Abre el archivo estrictamente para lectura. Lanza un error si el fichero no existe.
+*   **`'w'` (Write):** Modo de escritura. Si el archivo ya existe, **borra por completo todo su contenido anterior** antes de escribir. Si no existe, crea un archivo nuevo.
+*   **`'a'` (Append):** Modo de anexado. Añade el contenido nuevo **al final** del archivo existente, respetando los datos previos sin machacarlos.
+
+### Métodos de Lectura Integrados
+*   `.read()`: Vuelca el archivo entero de golpe devolviendo un único String gigante.
+*   `.readlines()`: Lee todo el archivo y **devuelve una Lista de Python**, donde cada elemento es una línea del texto en formato String (conservando saltos de línea `\n`).
+*   **Iteración por Línea (Recomendado):** Se puede recorrer el objeto lector directamente en un bucle `for` para procesar el fichero de forma secuencial línea a línea sin saturar la memoria RAM.
+
+---
+
+## 3. Formatos Tabulares I: Archivos CSV
+
+El formato **CSV (*Comma Separated Values*) es el estándar de la industria para el almacenamiento e intercambio de datos tabulares bidimensionales**. Es un archivo de texto plano de alta eficiencia que ocupa muy poco espacio en disco debido a su sencillez.
+
+### Particularidades Técnicas
+*   **Delimitadores:** Aunque su nombre indica separación por comas, **se recomienda trabajar con CSVs cuyo separador sea el punto y coma (`;`)**. Esto evita que el intérprete confunda la coma utilizada como separador decimal en los números flotantes con el separador de columnas del dataset.
+*   **Estructura:** La primera línea suele actuar como cabecera (*header*) declarando el nombre de las columnas. Las filas se delimitan mediante saltos de línea convencionales.
+
+### Procesamiento con Pandas
+La librería `pandas` provee las funciones óptimas de lectura y escritura:
+*   **Lectura (`pd.read_csv()`):** Transforma el texto plano en un objeto estructurado `DataFrame`. Parámetros clave: `sep` (indica el carácter delimitador, ej: `';'`), `index_col` (establece una columna como índice del DataFrame), `usecols` (permite cargar únicamente un subconjunto de columnas específicas) y `dtype` (fuerza la tipificación manual de columnas durante la carga).
+*   **Escritura (`df.to_csv()`):** Guarda las modificaciones en un archivo `.csv` local. Se aconseja añadir el argumento `index=False` para evitar que el índice numérico implícito se guarde de forma permanente como una columna adicional.
+
+---
+
+## 4. Formatos Tabulares II: Archivos Excel
+
+A diferencia del CSV, las extensiones de Microsoft Excel (`.xlsx`, `.xls`) codifican la información de manera comprimida e integrada. Es un formato mucho más flexible que permite albergar múltiples hojas de datos, celdas de texto libre ajenas a la tabla principal y configuraciones complejas.
+
+### Lectura con Pandas (`pd.read_excel()`)
+Para interactuar con libros de Excel en Python es común utilizar motores de lectura como la librería `openpyxl`. Al leer con Pandas, se configuran argumentos especializados para aislar la tabla requerida:
+*   `sheet_name`: Especifica la hoja exacta del libro a leer (por nombre en string o por su índice numérico base cero).
+*   `header`: Define el número de fila exacto en el que comienzan las cabeceras de columnas del dataset.
+*   `usecols`: Permite filtrar el rango de columnas nativas de Excel que se desean importar (ej: `'B:K'`).
+*   `skiprows`: Ignora un número de filas iniciales o un listado explícito de filas específicas durante el volcado de datos.
+
+Para escribir DataFrames de vuelta a Excel, se invoca directamente al método `.to_excel()` especificando la ruta destino.
+
+---
+
+## 5. Notación de Objetos JSON
+
+**JSON (*JavaScript Object Notation*) es un formato de texto plano estructurado de clave/valor independiente del lenguaje**, usado masivamente para el intercambio de información entre clientes y servidores web.
+
+### Flexibilidad vs Tabulación
+JSON abandona la rigidez dimensional de las filas y columnas para ganar flexibilidad. En una sola variable se pueden anidar listas, textos u otros objetos complejos empaquetados bajo llaves `{}`. En Python, **un archivo JSON se traduce de forma nativa a un Diccionario (`dict`)**.
+
+### Interacción con la Librería Estándar `json`
+*   `json.dump(obj, file)`: Serializa un objeto o diccionario de Python y lo guarda físicamente dentro de un archivo `.json` externo. *(Tip técnico: Para guardar estados de un objeto propio de una clase, se extrae previamente su mapa asociativo llamando al atributo interno `objeto.__dict__`)*.
+*   `json.load(file)`: Lee un archivo `.json` local y reconstruye de manera automática la estructura de datos mapeándola a un diccionario ejecutable dentro del programa.
+
+Pandas también permite aplanar estructuras JSON simétricas y cargarlas como tablas relacionales convencionales ejecutando la función `pd.read_json(..., lines=True)` si el fichero sigue el formato JSON Lines.
+
+---
+
+## 6. Ficheros de Texto Plano (`.txt` y `.tsv`)
+
+Los archivos `.txt` carecen de un formato formal preestablecido y se limitan a almacenar cadenas de texto libre. Sin embargo, cuando se emplean para coleccionar datos en bruto, suelen incorporar esquemas de separación estructurados:
+*   **Separación por Tabulaciones:** Los archivos estructurados con tabuladores (comúnmente guardados bajo la extensión específica **`.tsv`** o `.txt`) se procesan directamente con la función `pd.read_csv()` configurando el parámetro de escape de tabulación **`sep='\t'`**.
+
+---
+
+## 7. Archivos Comprimidos (`.zip`)
+
+Cuando se trabaja con repositorios masivos, los datos suelen distribuirse empaquetados para optimizar la transferencia de red. Python integra el módulo nativo **`zipfile`** para manipular contenedores comprimidos sin necesidad de software de terceros.
+
+```python
+import zipfile
+
+# Descompresión masiva de un contenedor ZIP
+with zipfile.ZipFile('data/laligaZIP.zip', 'r') as zip_ref:
+    zip_ref.extractall('data') # Descomprime todo el contenido en la carpeta destino
+```
+
+---
+
+## 8. Serialización de Objetos (`pickle`)
+
+El módulo **`pickle` es la herramienta nativa de Python que permite serializar y deserializar objetos**. La serialización es el proceso mediante el cual un objeto en memoria (un diccionario, una lista, un DataFrame o una instancia de una clase personalizada) se transforma en un **stream o flujo de bytes** para poder almacenarse físicamente en un archivo o transmitirse a través de una red.
+
+### Utilidad Práctica
+A diferencia de formatos de texto plano como JSON (que solo admiten tipos de datos básicos y estructuras jerárquicas simples), `pickle` puede congelar en el disco duro **cualquier estructura u objeto de Python** conservando su tipo, sus propiedades y su estado exacto para recuperarlo idénticamente más adelante. Es ampliamente utilizado en Data Science para guardar modelos de Machine Learning ya entrenados.
+
+### Modos Binarios Obligatorios
+Dado que `pickle` no genera texto legible por humanos sino flujos de bytes puros, la apertura de los archivos mediante la función `open()` requiere obligatoriamente el uso del flag **`b` (binary)** junto a los modos habituales:
+*   **`'wb'` (Write Binary):** Para serializar y escribir el objeto en el disco mediante la función `pickle.dump()`.
+*   **`'rb'` (Read Binary):** Para leer los bytes del archivo y reconstruir el objeto original en memoria mediante `pickle.load()`.
+
+```python
+import pickle
+
+# Ejemplo de escritura (Serialización)
+with open('data/importante', 'wb') as f:
+    pickle.dump(objeto_python, f)
+
+# Ejemplo de lectura (Deserialización)
+with open('data/importante', 'rb') as f:
+    objeto_recuperado = pickle.load(f)
+```
+
+---
+
+## 9. Codificación de Caracteres (`Encoding`)
+
+Todos los caracteres y cadenas de texto (*strings*) se almacenan internamente en el ordenador como conjuntos de bytes. El proceso de traducir caracteres a bytes se conoce como ***encoding***, mientras que la operación inversa (pasar de bytes a texto legible) se llama ***decoding***.
+
+### El Conflicto de la Representación de Datos
+Los strings se suelen mapear en un espacio de bits que va de 0 a 255. Debido a que en esa combinación limitada de bits no caben todos los caracteres e idiomas del planeta, **el significado de una combinación de bits específica varía según el *encoding* que se utilice**. 
+
+Por ejemplo, caracteres comunes como la "A" mayúscula se representan igual en casi todas las tablas, pero los bits reservados para caracteres especiales como la **"Ñ"** o las tildes se interpretan de formas completamente distintas según la región, provocando errores de lectura o la aparición de símbolos corruptos (como visualizar *"EspaÃ­as"* o *"EspaÃąa"*).
+
+### Codificaciones Clave en Python
+1.  **`'utf-8'`:** Es el estándar moderno más extendido en la industria. Engloba la inmensa mayoría de los caracteres de casi todos los lenguajes del planeta. Es el formato recomendado para trabajar sin conflictos.
+2.  **`'unicode'`:** Estándar universal diseñado para la compatibilidad total de textos.
+3.  **`'ascii'`:** Codificación americana básica. Solo utiliza 7 bits y contiene 128 caracteres. Lanza un error inmediato de tipo `UnicodeDecodeError` si el archivo contiene tildes, eñes o caracteres especiales ajenos al inglés.
+4.  **`'latin'` (o `iso8859`):** Diseñado para cubrir las necesidades de los idiomas de Europa occidental, Oceanía y Latinoamérica.
+
+```python
+# Especificación explícita del encoding al leer un archivo en Pandas
+import pandas as pd
+df = pd.read_csv('data/encoding.csv', encoding='utf-8')
+```
+
+---
+
+## 10. Archivos y Carpetas (Módulo `os`)
+
+La automatización de la lectura, escritura, renombrado, borrado y movimiento de archivos entre directorios permite agilizar flujos de trabajo repetitivos y tediosos. Para interactuar directamente con el sistema de archivos del sistema operativo, Python proporciona el módulo integrado **`os`**.
+
+### Funciones de Navegación y Rutas
+*   **`os.getcwd()`:** *Get Current Working Directory*. Devuelve un string con la ruta absoluta del directorio de trabajo en el que está apuntando el intérprete de Python en ese momento. Es la base para estructurar correctamente las rutas relativas.
+*   **`os.chdir('ruta')`:** *Change Directory*. Cambia dinámicamente el directorio de trabajo actual del programa hacia la ubicación indicada.
+*   **`os.path.join('directorio', 'archivo')`:** Concatena carpetas y nombres de archivos de forma inteligente, insertando automáticamente las barras separadoras correctas (`/` o `\`) compatibles con el sistema operativo anfitrión (Windows, Linux o macOS).
+
+### Inspección y Búsqueda de Ficheros
+*   **`os.listdir()`:** Devuelve una lista con todos los nombres de los archivos y subcarpetas contenidos en el directorio de trabajo actual. Es ideal para recorrer colecciones en bucles `for` y filtrar elementos por su extensión mediante métodos como `.endswith('.txt')`.
+*   **`os.walk('ruta')`:** Generador de alta potencia que bucea recursivamente por un directorio y todas sus subcarpetas. En cada iteración devuelve una tupla con tres elementos: la ruta de la carpeta actual, una lista de sus subcarpetas y una lista de sus archivos.
+
+### Operaciones Operativas Críticas
+*   **`os.mkdir('nombre')`:** Crea una nueva carpeta o directorio en la ruta indicada.
+*   **`os.rmdir('nombre')`:** Elimina una carpeta existente (siempre que se encuentre vacía).
+*   **`os.remove('ruta_fichero')`:** Borra de forma definitiva un archivo del almacenamiento físico.
+*   **`shutil.move('origen', 'destino')`:** Función importada de la librería complementaria `shutil` que permite mover o trasladar físicamente un archivo de una carpeta a otra.
+
+```python
+import os
+import shutil
+
+# Comprobar el directorio y listar archivos .txt
+print("Directorio actual:", os.getcwd())
+for archivo in os.listdir():
+    if archivo.endswith('.txt'):
+        print("Fichero de texto encontrado:", archivo)
+
+# Construcción de rutas y movimiento seguro
+ruta_origen = os.path.join(os.getcwd(), "fichero.txt")
+shutil.move(ruta_origen, "data")
+```
+
+
+
+
+<hr>
+
+
+
