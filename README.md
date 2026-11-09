@@ -1187,7 +1187,7 @@ Este repositorio contiene los mecanismos fundamentales para interactuar con el a
 7. [Archivos Comprimidos (`.zip`)](#7-archivos-comprimidos-zip)
 8. [Serialización de Objetos (`pickle`)](#8-serialización-de-objetos-pickle)
 9. [Codificación de Caracteres (`Encoding`)](#9-codificación-de-caracteres-encoding)
-10. [Automatización del Sistema Operativo (`os` y `shutil`)](#10-Archivos-y-Carpetas-(Módulo-os))
+10. [Automatización del Sistema Operativo (`os` y `shutil`)](#10-archivos-y-carpetas-(módulo-os))
 
 ---
 
