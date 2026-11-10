@@ -3904,3 +3904,167 @@ Dominar estos conceptos proporciona una base sólida para realizar visualizacion
 
 
 <hr>
+
+
+
+
+
+
+
+
+# Histogramas, Binnings y Densidades en Python con Matplotlib y NumPy
+
+Un simple histograma puede ser un gran primer paso para comprender las características esenciales de un conjunto de datos. Permite visualizar la distribución de los valores, identificar la tendencia central, observar la dispersión y detectar la presencia de sesgos o valores atípicos (outliers).
+
+---
+
+## 1. Histogramas Unidimensionales
+
+La forma más directa de trazar un histograma en una dimensión es utilizando la función `plt.hist()` de Matplotlib.
+
+### Configuración Inicial y Datos de Ejemplo
+Para ilustrar los conceptos, se genera un conjunto de datos con una distribución normal (gaussiana) utilizando NumPy:
+
+```python
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Configuración del estilo de gráficos
+plt.style.use('seaborn-v0_8')
+
+# Generación de 1000 números aleatorios con distribución normal estándar
+data = np.random.randn(1000)
+```
+
+### Gráfico Básico
+El comando más simple divide los datos automáticamente en casillas o intervalos (*bins*):
+
+```python
+plt.hist(data, bins=100);
+```
+
+### Personalización del Histograma
+La función `plt.hist()` ofrece múltiples opciones para ajustar tanto el cálculo matemático de los intervalos como la visualización estética:
+
+*   **`bins`**: Especifica el número de intervalos o casillas en los que se dividirá el rango de datos.
+*   **`alpha`**: Ajusta el grado de transparencia de las barras (valor entre `0` y `1`). Es una propiedad sumamente útil al superponer múltiples distribuciones en un mismo gráfico para evitar que se oculten entre sí.
+*   **`color`**: Cambia el color de relleno de las barras (ej. `'steelblue'`).
+
+```python
+plt.hist(data, bins=30, alpha=0.5, color='steelblue');
+```
+
+### Comparación de Varias Distribuciones
+Combinando el parámetro `alpha` con diferentes configuraciones de diccionarios (`kwargs`), se pueden contrastar múltiples conjuntos de datos de manera limpia:
+
+```python
+x1 = np.random.normal(0, 0.8, 1000)
+x2 = np.random.normal(-2, 1, 1000)
+x3 = np.random.normal(3, 2, 1000)
+
+kwargs = dict(alpha=0.5, bins=50)
+
+plt.hist(x1, **kwargs, label="X1")
+plt.hist(x2, **kwargs, label="X2")
+plt.hist(x3, **kwargs, label="X3")
+plt.legend();
+```
+
+### Cálculo Numérico sin Gráfico (`np.histogram`)
+Si solo se requiere realizar el cálculo matemático del histograma (contar cuántos puntos caen dentro de cada intervalo) sin generar una representación visual, NumPy proporciona la función `np.histogram()`:
+
+```python
+counts, bin_edges = np.histogram(x1, bins=50)
+print(counts) # Devuelve un array con las frecuencias
+print(bin_edges) # Devuelve los límites de cada intervalo (bin)
+```
+
+---
+
+## 2. Histogramas Bidimensionales y Binnings
+
+De la misma manera que se crean histogramas en una dimensión dividiendo una línea numérica en intervalos, se pueden construir histogramas en dos dimensiones dividiendo los puntos de un plano cartesiano en casillas bidimensionales.
+
+### Datos de Ejemplo (Distribución Gaussiana Multivariante)
+Se define una matriz de coordenadas `x` e `y` extraída de una distribución normal bidimensional correlacionada:
+
+```python
+mean = [0, 0]
+cov = [[1, 1], [1, 2]]
+x, y = np.random.multivariate_normal(mean, cov, 10000).T
+```
+
+### A. Casillas Cuadradas: `plt.hist2d`
+Una forma directa de estructurar esta información es con casillas cuadradas usando la función `plt.hist2d()`:
+
+```python
+plt.hist2d(x, y, bins=100, cmap='Blues');
+cb = plt.colorbar()
+cb.set_label('counts in bin')
+```
+*   **`cmap`**: Aplica un mapa de colores (Colormap) para representar la densidad de frecuencias.
+*   **`plt.colorbar()`**: Añade una barra lateral que funciona como leyenda matemática para mapear los colores con la cantidad de frecuencias detectadas.
+
+Para realizar el cálculo puramente numérico en dos dimensiones (o más), NumPy ofrece las funciones homólogas:
+*   `np.histogram2d(x, y, bins=10)`
+*   `np.histogramdd` (Para generalizaciones en más de dos dimensiones).
+
+### B. Casillas Hexagonales: `plt.hexbin`
+El binning cuadrado puede generar artefactos visuales debido a las orientaciones de los ejes. Una alternativa natural y estéticamente eficiente es usar hexágonos regulares. Matplotlib lo resuelve mediante la rutina `plt.hexbin()`:
+
+```python
+plt.hexbin(x, y, gridsize=10, cmap='Blues')
+cb = plt.colorbar(label='count in bin')
+```
+*   **`gridsize`**: Controla el tamaño y cantidad de la estructura de hexágonos en el gráfico.
+*   **Propiedades Avanzadas**: Admite el paso de un argumento para ponderar (`weights`) cada punto y cambiar el tipo de acumulación de datos en cada hexágono mediante cualquier agregado de NumPy (como obtener la media o la desviación estándar en lugar de la suma de frecuencias).
+
+---
+
+## 3. Personalización de Barras de Colores (Colorbars)
+
+Las barras de colores (`colorbar`) funcionan como leyendas continuas que asocian tonalidades con rangos de valores cuantitativos. En Matplotlib, una barra de colores es una instancia independiente de un eje (`plt.Axes`).
+
+### Categorías de Mapas de Colores (Colormaps)
+Elegir el mapa de colores adecuado es crítico para no sesgar la interpretación de los datos. Se clasifican principalmente en tres familias:
+
+1.  **Secuenciales**: Formados por una secuencia continua y monótona de colores y brillo (ej. `binary` o `viridis`). Son ideales para datos cuantitativos incrementales.
+2.  **Divergentes**: Contienen dos colores distintos que convergen en un centro neutro (ej. `RdBu` o `PuOr`). Ideales para resaltar desviaciones positivas y negativas respecto a una media o valor central.
+3.  **Cualitativos o Cíclicos**: Mezclan colores sin una secuencia de brillo lineal (ej. `rainbow` o `jet`). Son útiles para datos categóricos, pero **pésimos para representar datos cuantitativos continuos**.
+
+### El Problema de los Mapas Cualitativos (Ejemplo: `jet`)
+El mapa de colores `jet` (antiguo esquema por defecto en Matplotlib) rompe la progresión uniforme del brillo. Al convertir un mapa de color `jet` a escala de grises, se observan franjas brillantes falsas en zonas intermedias, lo que introduce un sesgo visual inconsciente en el ojo humano, haciendo que resalten regiones sin justificación matemática.
+
+Mapas modernos como **`viridis`** o **`cubehelix`** garantizan una progresión perfectamente lineal de la luminosidad, permitiendo una correcta interpretación de los datos e incluso una correcta visualización si el gráfico se imprime en blanco y negro.
+
+```python
+# Aplicación de un colormap secuencial correcto
+plt.imshow(I, cmap='viridis')
+plt.colorbar();
+```
+
+### Límites de Color y Extensiones (`extend`)
+Cuando los datos contienen ruido o valores extremos, los límites por defecto del mapa de colores pueden verse afectados, ocultando los patrones principales. Esto se soluciona limitando el rango visual (`plt.clim`) y extendiendo los extremos en forma de flechas indicativas mediante el parámetro `extend`:
+
+```python
+# Fijación manual de límites de color ignorando extremos ruidosos
+plt.imshow(I, cmap='RdBu')
+plt.colorbar(extend='both')
+plt.clim(-1, 1);  # Fija los límites de color entre -1 y 1
+```
+
+### Mapas de Colores Discretos
+Si en lugar de una transición de color continua se desea una visualización por pasos o intervalos discretos, se puede recurrir a la función `plt.cm.get_cmap()` pasando el número de divisiones deseadas:
+
+```python
+# Divide el mapa de colores en 6 bloques discretos bien definidos
+plt.imshow(I, cmap=plt.cm.get_cmap('Blues', 6))
+plt.colorbar()
+plt.clim(-1, 1);
+```
+
+
+
+
+<hr>
