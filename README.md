@@ -1542,3 +1542,2365 @@ La diferencia fundamental radica en que, en gráficos sencillos, la elección es
 
 <hr>
 
+
+
+
+
+
+
+# 📊 MATPLOTLIB: GRÁFICOS DE LÍNEAS, SCATTER PLOTS Y PERSONALIZACIÓN DE LEYENDAS
+
+# 1. INTRODUCCIÓN A MATPLOTLIB
+
+Matplotlib es una biblioteca de Python utilizada para crear visualizaciones de datos. Permite representar información mediante diferentes tipos de gráficos y personalizar prácticamente todos sus elementos visuales.
+
+En este tema se estudian tres aspectos fundamentales:
+
+1. **Simple Line Plots:** creación y personalización de gráficos de líneas.
+2. **Simple Scatter Plots:** creación de gráficos de dispersión y representación de datos multidimensionales.
+3. **Personalización de leyendas:** configuración de leyendas, selección de elementos y creación de leyendas múltiples.
+
+## 1.1. Importación de bibliotecas
+
+Para trabajar con Matplotlib, NumPy y Pandas, se importan las siguientes bibliotecas:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+plt.style.use('seaborn-v0_8')
+```
+
+- `matplotlib.pyplot`: proporciona las funciones necesarias para crear y personalizar gráficos.
+- `numpy`: permite generar y manipular datos numéricos.
+- `pandas`: facilita la lectura y manipulación de conjuntos de datos.
+- `plt.style.use()`: permite establecer un estilo visual predeterminado para los gráficos.
+
+También puede utilizarse:
+
+```python
+# %matplotlib inline
+```
+
+En los notebooks de Jupyter, esta instrucción permite mostrar los gráficos directamente dentro del notebook.
+
+---
+
+# 2. SIMPLE LINE PLOTS: GRÁFICOS DE LÍNEAS
+
+Un gráfico de líneas es una de las representaciones gráficas más sencillas y utilizadas.
+
+Permite representar una función matemática de la forma:
+
+$$
+y = f(x)
+$$
+
+En este tipo de gráfico:
+
+- El eje X representa los valores de entrada.
+- El eje Y representa los valores correspondientes de la función.
+- Los puntos se conectan mediante segmentos de línea.
+
+Son especialmente útiles para visualizar funciones matemáticas, tendencias, evoluciones temporales y relaciones entre variables.
+
+## 2.1. Conceptos fundamentales: Figure y Axes
+
+En Matplotlib, la creación de gráficos se basa principalmente en dos objetos:
+
+### Figure (`fig`)
+
+La figura es el contenedor principal de la visualización.
+
+Es una instancia de la clase `plt.Figure` y contiene todos los elementos que forman el gráfico:
+
+- Los ejes.
+- Los gráficos.
+- Los textos.
+- Los títulos.
+- Las etiquetas.
+- Las leyendas.
+
+Una figura puede contener uno o varios sistemas de ejes.
+
+### Axes (`ax`)
+
+Los ejes son el espacio concreto donde se representa la información.
+
+Es una instancia de la clase `plt.Axes` y contiene:
+
+- Los puntos y las líneas.
+- Los ejes X e Y.
+- Las etiquetas.
+- Los títulos.
+- Los elementos visuales del gráfico.
+
+**Diferencia fundamental:**
+
+- `Figure`: representa el contenedor general de la visualización.
+- `Axes`: representa el área donde se dibujan los datos.
+
+Por convención, se utilizan las variables:
+
+```python
+fig  # Figura.
+ax   # Ejes.
+```
+
+## 2.2. Creación de una figura y unos ejes
+
+La forma más básica de crear una figura y unos ejes es:
+
+```python
+fig = plt.figure()
+ax = plt.axes()
+```
+
+También se pueden crear conjuntamente:
+
+```python
+fig, ax = plt.subplots()
+```
+
+Una vez creados los ejes, se pueden representar los datos mediante `ax.plot()`.
+
+## 2.3. Representación de una función matemática
+
+Para representar una función seno, primero generamos los valores del eje X utilizando NumPy.
+
+```python
+x = np.linspace(0, 10, 1000)
+
+y = np.sin(x)
+
+fig = plt.figure()
+ax = plt.axes()
+
+ax.plot(x, y);
+```
+
+### Función `np.linspace()`
+
+Permite generar una secuencia de números distribuidos uniformemente dentro de un intervalo.
+
+Sintaxis:
+
+```python
+np.linspace(inicio, final, numero_elementos)
+```
+
+Ejemplo:
+
+```python
+x = np.linspace(0, 10, 1000)
+```
+
+Genera 1000 valores comprendidos entre 0 y 10.
+
+### Función `np.sin()`
+
+Calcula el seno de los valores proporcionados.
+
+```python
+y = np.sin(x)
+```
+
+De esta manera, obtenemos los valores necesarios para representar:
+
+$$
+y = \sin(x)
+$$
+
+### Método `ax.plot()`
+
+Permite representar los datos sobre unos ejes concretos.
+
+```python
+ax.plot(x, y)
+```
+
+Recibe principalmente dos argumentos:
+
+- `x`: valores del eje horizontal.
+- `y`: valores del eje vertical.
+
+Ambos conjuntos deben tener dimensiones compatibles.
+
+## 2.4. Interfaz pyplot frente a interfaz orientada a objetos
+
+Matplotlib permite trabajar utilizando dos interfaces diferentes.
+
+### A. Interfaz orientada a objetos
+
+Consiste en crear explícitamente una figura y unos ejes y utilizar sus métodos.
+
+```python
+fig = plt.figure()
+ax = plt.axes()
+
+ax.plot(x, np.sin(x))
+```
+
+También puede utilizarse:
+
+```python
+fig, ax = plt.subplots()
+
+ax.plot(x, np.sin(x))
+```
+
+En este enfoque, las operaciones se realizan directamente sobre el objeto `ax`.
+
+Es una alternativa especialmente útil cuando se trabaja con gráficos complejos o con varias figuras y ejes.
+
+### B. Interfaz pyplot o estilo MATLAB
+
+También podemos utilizar directamente las funciones de `matplotlib.pyplot`.
+
+```python
+plt.plot(x, np.sin(x))
+```
+
+En este caso, Matplotlib crea automáticamente la figura y los ejes necesarios en segundo plano.
+
+No necesitamos crear previamente los objetos `fig` y `ax`.
+
+### Comparación
+
+| Interfaz | Ejemplo | Característica |
+|---|---|---|
+| Orientada a objetos | `ax.plot(x, y)` | Trabaja directamente sobre unos ejes concretos. |
+| Pyplot | `plt.plot(x, y)` | Utiliza los ejes actuales y crea los elementos necesarios automáticamente. |
+
+Ambas interfaces permiten crear gráficos, pero la interfaz orientada a objetos ofrece un control más explícito sobre las figuras y sus ejes.
+
+## 2.5. Representación de múltiples líneas
+
+Para representar varias funciones dentro de un mismo gráfico, basta con ejecutar varias llamadas a `plot()`.
+
+Por ejemplo:
+
+```python
+plt.plot(x, np.sin(x))
+plt.plot(x, np.cos(x))
+```
+
+Esto representa simultáneamente:
+
+$$
+y_1 = \sin(x)
+$$
+
+$$
+y_2 = \cos(x)
+$$
+
+También podemos utilizar la interfaz orientada a objetos:
+
+```python
+fig, ax = plt.subplots()
+
+ax.plot(x, np.sin(x))
+ax.plot(x, np.cos(x))
+```
+
+Cada llamada añade una nueva línea al mismo sistema de ejes.
+
+---
+
+# 3. PERSONALIZACIÓN DE LOS GRÁFICOS DE LÍNEAS
+
+Matplotlib permite modificar la apariencia de las líneas mediante argumentos adicionales de la función `plot()`.
+
+Los principales aspectos que se pueden personalizar son:
+
+- El color.
+- El estilo de línea.
+- Los límites de los ejes.
+- Los títulos.
+- Las etiquetas.
+- Las leyendas.
+
+## 3.1. Personalización del color de las líneas
+
+El argumento `color` permite establecer el color de una línea.
+
+```python
+plt.plot(x, np.sin(x), color='blue')
+```
+
+Matplotlib admite diferentes formas de especificar los colores.
+
+### A. Nombre del color
+
+Se puede utilizar directamente el nombre del color.
+
+```python
+plt.plot(x, np.sin(x), color='blue')
+plt.plot(x, np.sin(x), color='red')
+plt.plot(x, np.sin(x), color='green')
+```
+
+### B. Códigos abreviados
+
+Se pueden utilizar códigos de una sola letra.
+
+| Código | Color |
+|---|---|
+| `b` | Blue (azul) |
+| `g` | Green (verde) |
+| `r` | Red (rojo) |
+| `c` | Cyan (cian) |
+| `m` | Magenta |
+| `y` | Yellow (amarillo) |
+| `k` | Black (negro) |
+| `w` | White (blanco) |
+
+Ejemplo:
+
+```python
+plt.plot(x, np.sin(x), color='g')
+```
+
+### C. Escala de grises
+
+Se puede especificar un número entre 0 y 1 como cadena.
+
+```python
+plt.plot(x, np.sin(x), color='0.75')
+```
+
+- `0`: negro.
+- `1`: blanco.
+- Valores intermedios: diferentes tonalidades de gris.
+
+### D. Código hexadecimal
+
+También se pueden utilizar códigos hexadecimales RGB.
+
+```python
+plt.plot(x, np.sin(x), color='#25B12F')
+```
+
+El formato es:
+
+```text
+#RRGGBB
+```
+
+Cada componente representa la intensidad de rojo, verde y azul.
+
+### E. Tupla RGB
+
+Se puede especificar el color mediante una tupla de tres valores.
+
+```python
+plt.plot(
+    x,
+    np.sin(x),
+    color=(1.0, 0.2, 0.3)
+)
+```
+
+Cada componente RGB toma valores entre 0 y 1.
+
+### F. Nombres de colores HTML
+
+Matplotlib también admite nombres de colores HTML.
+
+```python
+plt.plot(x, np.sin(x), color='chartreuse')
+```
+
+### Colores automáticos
+
+Si no se especifica el color, Matplotlib utiliza automáticamente una secuencia de colores predeterminada para diferenciar las distintas líneas de un gráfico.
+
+## 3.2. Personalización del estilo de línea
+
+El argumento `linestyle` permite modificar el patrón de la línea.
+
+Los cuatro estilos principales son:
+
+| Nombre | Código largo | Código corto |
+|---|---|---|
+| Línea continua | `'solid'` | `'-'` |
+| Línea discontinua | `'dashed'` | `'--'` |
+| Línea de puntos y rayas | `'dashdot'` | `'-.'` |
+| Línea de puntos | `'dotted'` | `':'` |
+
+Ejemplo:
+
+```python
+plt.plot(x, x + 0, linestyle='solid')
+plt.plot(x, x + 1, linestyle='dashed')
+plt.plot(x, x + 2, linestyle='dashdot')
+plt.plot(x, x + 3, linestyle='dotted')
+```
+
+También se pueden utilizar los códigos abreviados:
+
+```python
+plt.plot(x, x + 4, linestyle='-')
+plt.plot(x, x + 5, linestyle='--')
+plt.plot(x, x + 6, linestyle='-.')
+plt.plot(x, x + 7, linestyle=':')
+```
+
+## 3.3. Combinar color y estilo de línea
+
+Matplotlib permite combinar el color y el estilo en un único argumento posicional.
+
+Esto permite escribir código más compacto.
+
+```python
+plt.plot(x, x + 0, '-r')
+plt.plot(x, x + 1, '--c')
+plt.plot(x, x + 2, '-.k')
+plt.plot(x, x + 3, ':r')
+```
+
+La estructura general es:
+
+```python
+plt.plot(x, y, estilo_color)
+```
+
+Por ejemplo:
+
+- `'-r'`: línea continua roja.
+- `'--c'`: línea discontinua cian.
+- `'-.k'`: línea de puntos y rayas negra.
+- `':r'`: línea de puntos roja.
+
+Los códigos de color de un solo carácter utilizan las abreviaturas habituales de los sistemas RGB y CMYK.
+
+---
+
+# 4. AJUSTAR LOS GRÁFICOS: LÍMITES DE LOS EJES
+
+Matplotlib calcula automáticamente los límites de los ejes para mostrar los datos.
+
+Sin embargo, en ocasiones necesitamos controlar manualmente el intervalo visible.
+
+Para ello existen varias funciones.
+
+## 4.1. Función `plt.xlim()`
+
+Permite establecer los límites del eje horizontal.
+
+Sintaxis:
+
+```python
+plt.xlim(valor_minimo, valor_maximo)
+```
+
+Ejemplo:
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.xlim(-1, 11)
+```
+
+El eje X mostrará el intervalo comprendido entre -1 y 11.
+
+## 4.2. Función `plt.ylim()`
+
+Permite establecer los límites del eje vertical.
+
+Sintaxis:
+
+```python
+plt.ylim(valor_minimo, valor_maximo)
+```
+
+Ejemplo:
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.ylim(-1.5, 1.5)
+```
+
+El eje Y mostrará el intervalo comprendido entre -1.5 y 1.5.
+
+### Ejemplo conjunto
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.xlim(-1, 11)
+plt.ylim(-1.5, 1.5)
+```
+
+## 4.3. Invertir los ejes
+
+También es posible invertir el sentido de representación de cualquiera de los ejes.
+
+Para ello, basta con proporcionar los límites en orden inverso.
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.xlim(5, 0)
+plt.ylim(1.2, -1.2)
+```
+
+En este ejemplo:
+
+- El eje X se representa desde 5 hasta 0.
+- El eje Y se representa desde 1.2 hasta -1.2.
+
+Por tanto, el orden de los argumentos determina también el sentido de representación.
+
+## 4.4. Función `plt.axis()`
+
+La función `plt.axis()` permite controlar simultáneamente los límites de los dos ejes.
+
+Su sintaxis es:
+
+```python
+plt.axis([xmin, xmax, ymin, ymax])
+```
+
+Ejemplo:
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.axis([-1, 11, -1.5, 1.5])
+```
+
+El orden de los valores es importante:
+
+1. Límite mínimo del eje X.
+2. Límite máximo del eje X.
+3. Límite mínimo del eje Y.
+4. Límite máximo del eje Y.
+
+### A. Ajuste automático: `tight`
+
+Permite ajustar los límites alrededor del contenido del gráfico.
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.axis('tight')
+```
+
+Matplotlib adapta los límites para que se ajusten estrechamente a los datos representados.
+
+### B. Relación de aspecto igual: `equal`
+
+Permite establecer una relación de aspecto igual entre los ejes.
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.axis('equal')
+```
+
+Esto garantiza que una unidad del eje X tenga la misma longitud visual que una unidad del eje Y.
+
+Es especialmente útil cuando interesa preservar las proporciones geométricas de los datos.
+
+### Resumen de las funciones de límites
+
+| Función | Utilidad |
+|---|---|
+| `plt.xlim()` | Modifica los límites del eje X. |
+| `plt.ylim()` | Modifica los límites del eje Y. |
+| `plt.axis()` | Modifica simultáneamente los límites de ambos ejes. |
+| `plt.axis('tight')` | Ajusta los límites alrededor de los datos. |
+| `plt.axis('equal')` | Establece una relación de aspecto igual. |
+
+---
+
+# 5. ETIQUETADO DE LOS GRÁFICOS
+
+Para interpretar correctamente una visualización es importante añadir información descriptiva.
+
+Matplotlib permite incorporar:
+
+- Títulos.
+- Etiquetas del eje X.
+- Etiquetas del eje Y.
+- Leyendas.
+
+## 5.1. Función `plt.title()`
+
+Permite establecer el título del gráfico.
+
+```python
+plt.title("A sin curve")
+```
+
+El título proporciona una descripción general de la información representada.
+
+## 5.2. Función `plt.xlabel()`
+
+Permite establecer el nombre del eje horizontal.
+
+```python
+plt.xlabel("Valores")
+```
+
+## 5.3. Función `plt.ylabel()`
+
+Permite establecer el nombre del eje vertical.
+
+```python
+plt.ylabel("y")
+```
+
+### Ejemplo completo
+
+```python
+plt.plot(x, np.sin(x))
+
+plt.title("A sin curve")
+plt.xlabel("Valores")
+plt.ylabel("y")
+
+plt.xlim(0, 20)
+```
+
+### Personalización de las etiquetas
+
+La posición, el tamaño y el estilo de los títulos y las etiquetas pueden modificarse mediante argumentos opcionales.
+
+Para conocer todas las posibilidades se puede consultar la documentación y los docstrings de las funciones correspondientes.
+
+---
+
+# 6. LEYENDAS BÁSICAS
+
+Cuando un gráfico contiene varias líneas, es importante identificar qué representa cada una.
+
+Para ello utilizamos las leyendas.
+
+## 6.1. Función `plt.legend()`
+
+Permite mostrar una leyenda que identifica los distintos elementos del gráfico.
+
+La forma más sencilla de utilizarla consiste en asignar previamente una etiqueta a cada línea mediante el argumento `label`.
+
+```python
+plt.plot(
+    x,
+    np.sin(x),
+    '-g',
+    label='sin(x)'
+)
+
+plt.plot(
+    x,
+    np.cos(x),
+    ':b',
+    label='cos(x)'
+)
+
+plt.legend()
+```
+
+Matplotlib utiliza las etiquetas proporcionadas para construir automáticamente la leyenda.
+
+Además, conserva la correspondencia entre:
+
+- El color de cada línea.
+- El estilo de cada línea.
+- El texto descriptivo correspondiente.
+
+De esta manera, cada etiqueta aparece asociada visualmente a su línea.
+
+---
+
+# 7. TRANSICIÓN ENTRE LA INTERFAZ PYPLOT Y LA INTERFAZ ORIENTADA A OBJETOS
+
+Matplotlib permite utilizar las funciones de `plt` o los métodos de los objetos `ax`.
+
+Muchas funciones tienen una equivalencia directa.
+
+Sin embargo, algunas funciones de etiquetas, títulos y límites cambian ligeramente de nombre.
+
+La correspondencia es la siguiente:
+
+| Interfaz pyplot | Interfaz orientada a objetos |
+|---|---|
+| `plt.xlabel()` | `ax.set_xlabel()` |
+| `plt.ylabel()` | `ax.set_ylabel()` |
+| `plt.xlim()` | `ax.set_xlim()` |
+| `plt.ylim()` | `ax.set_ylim()` |
+| `plt.title()` | `ax.set_title()` |
+| `plt.plot()` | `ax.plot()` |
+| `plt.legend()` | `ax.legend()` |
+
+## 7.1. Método `ax.set()`
+
+En lugar de modificar cada propiedad de los ejes mediante una llamada independiente, podemos utilizar el método `ax.set()`.
+
+Este método permite establecer varias propiedades simultáneamente.
+
+Ejemplo:
+
+```python
+fig, ax = plt.subplots()
+
+ax.plot(x, np.sin(x))
+
+ax.set(
+    xlim=(0, 10),
+    ylim=(-2, 2),
+    xlabel='x',
+    ylabel='sin(x)',
+    title='A Simple Plot'
+)
+```
+
+En una única llamada podemos establecer:
+
+- `xlim`: límites del eje X.
+- `ylim`: límites del eje Y.
+- `xlabel`: etiqueta del eje X.
+- `ylabel`: etiqueta del eje Y.
+- `title`: título del gráfico.
+
+Es una forma más compacta de personalizar los ejes cuando utilizamos la interfaz orientada a objetos.
+
+---
+
+# 8. SIMPLE SCATTER PLOTS: GRÁFICOS DE DISPERSIÓN
+
+Un gráfico de dispersión (*scatter plot*) es un tipo de visualización relacionado con los gráficos de líneas.
+
+La principal diferencia es que los puntos no están conectados mediante segmentos de línea.
+
+Cada observación se representa individualmente mediante un símbolo, como:
+
+- Un punto.
+- Un círculo.
+- Una cruz.
+- Un triángulo.
+- Un cuadrado.
+
+Los gráficos de dispersión permiten observar relaciones, distribuciones y patrones entre variables.
+
+Matplotlib proporciona principalmente dos formas de crear gráficos de dispersión:
+
+1. Utilizando `plt.plot()`.
+2. Utilizando `plt.scatter()`.
+
+---
+
+# 9. CREAR SCATTER PLOTS CON `plt.plot()`
+
+Aunque `plt.plot()` se utiliza habitualmente para crear gráficos de líneas, también permite representar puntos individuales.
+
+Para ello se utilizan los códigos de marcadores.
+
+Ejemplo:
+
+```python
+x = np.linspace(0, 10, 50)
+y = np.sin(x)
+
+plt.plot(x, y, '-ok', color='black')
+```
+
+En este caso:
+
+- `x`: coordenadas horizontales.
+- `y`: coordenadas verticales.
+- `o`: marcador circular.
+- `-`: línea continua.
+- `k`: código de color negro.
+
+Los marcadores permiten controlar cómo se representa cada observación.
+
+## 9.1. Tipos de marcadores
+
+Matplotlib dispone de numerosos códigos para representar los puntos.
+
+Algunos de los más utilizados son:
+
+| Código | Marcador |
+|---|---|
+| `'o'` | Círculo |
+| `'.'` | Punto |
+| `','` | Pixel |
+| `'x'` | Cruz |
+| `'+'` | Signo más |
+| `'v'` | Triángulo hacia abajo |
+| `'^'` | Triángulo hacia arriba |
+| `'<'` | Triángulo hacia la izquierda |
+| `'>'` | Triángulo hacia la derecha |
+| `'s'` | Cuadrado |
+| `'d'` | Diamante |
+
+Ejemplo:
+
+```python
+rng = np.random.RandomState()
+
+for marker in ['o', '.', ',', 'x', '+',
+               'v', '^', '<', '>', 's', 'd']:
+
+    plt.plot(
+        rng.rand(5),
+        rng.rand(5),
+        marker,
+        label="marker='{0}'".format(marker)
+    )
+
+plt.legend(numpoints=1)
+plt.xlim(0, 1.8)
+```
+
+En este ejemplo:
+
+- `np.random.RandomState()` permite generar números aleatorios.
+- `rng.rand(5)` genera cinco valores aleatorios.
+- El bucle recorre diferentes tipos de marcadores.
+- `label` permite identificar cada tipo de marcador.
+- `plt.legend()` muestra la leyenda.
+- `numpoints=1` establece que la leyenda muestre un único punto por entrada.
+
+## 9.2. Combinar líneas y marcadores
+
+Los códigos de marcadores pueden combinarse con los códigos de color y de estilo de línea.
+
+```python
+plt.plot(x, y, '-ok')
+```
+
+Esto permite representar simultáneamente:
+
+- Los puntos individuales.
+- Una línea que conecta los puntos.
+- Un estilo visual determinado.
+
+## 9.3. Personalización avanzada de líneas y marcadores
+
+La función `plt.plot()` admite argumentos adicionales para controlar las propiedades visuales.
+
+Los más importantes que aparecen en el notebook son:
+
+### `color`
+
+Establece el color de la línea y, en general, el color asociado al trazado.
+
+```python
+color='gray'
+```
+
+### `linewidth`
+
+Controla el grosor de la línea.
+
+```python
+linewidth=10
+```
+
+### `markersize`
+
+Controla el tamaño de los marcadores.
+
+```python
+markersize=15
+```
+
+### `markerfacecolor`
+
+Establece el color interior de los marcadores.
+
+```python
+markerfacecolor='blue'
+```
+
+### `markeredgecolor`
+
+Establece el color del borde de los marcadores.
+
+```python
+markeredgecolor='black'
+```
+
+### `markeredgewidth`
+
+Controla el grosor del borde de los marcadores.
+
+```python
+markeredgewidth=2
+```
+
+### Ejemplo completo
+
+```python
+plt.plot(
+    x,
+    y,
+    '-ok',
+    color='gray',
+    linewidth=10,
+    markersize=15,
+    markerfacecolor='blue',
+    markeredgecolor='black',
+    markeredgewidth=2
+)
+```
+
+Este conjunto de argumentos permite personalizar tanto las líneas como los puntos que forman el gráfico.
+
+---
+
+# 10. CREAR SCATTER PLOTS CON `plt.scatter()`
+
+Otra forma de crear gráficos de dispersión consiste en utilizar la función `plt.scatter()`.
+
+Su funcionamiento básico es muy similar al de `plt.plot()`.
+
+```python
+plt.scatter(x, y)
+```
+
+Esta función representa cada observación como un punto independiente.
+
+## 10.1. Diferencia fundamental entre `plt.plot()` y `plt.scatter()`
+
+La principal diferencia es la capacidad de personalización individual de cada punto.
+
+Con `plt.scatter()` podemos modificar individualmente propiedades como:
+
+- El tamaño.
+- El color interior.
+- El color del borde.
+- La transparencia.
+
+Además, estas propiedades pueden asignarse directamente a variables del conjunto de datos.
+
+Esto permite representar más información dentro de un único gráfico.
+
+## 10.2. Argumentos principales de `plt.scatter()`
+
+### `x`
+
+Contiene las coordenadas horizontales de los puntos.
+
+### `y`
+
+Contiene las coordenadas verticales de los puntos.
+
+### `c`
+
+Permite especificar el color de los puntos.
+
+Puede recibir un color fijo o valores numéricos que se traducen en una escala de colores.
+
+```python
+c=colors
+```
+
+### `s`
+
+Permite establecer el tamaño de los puntos.
+
+Puede utilizarse un valor fijo o un conjunto de valores que determine el tamaño individual de cada observación.
+
+```python
+s=sizes
+```
+
+El tamaño se expresa en puntos cuadrados de área (points²).
+
+### `alpha`
+
+Controla la transparencia de los elementos.
+
+Sus valores habituales se encuentran entre 0 y 1:
+
+- `alpha=0`: completamente transparente.
+- `alpha=0.5`: transparencia intermedia.
+- `alpha=1`: completamente opaco.
+
+Ejemplo:
+
+```python
+alpha=0.8
+```
+
+### `cmap`
+
+Permite seleccionar el mapa de colores utilizado para traducir los valores numéricos de `c` a colores.
+
+Ejemplo:
+
+```python
+cmap='viridis'
+```
+
+### `plt.colorbar()`
+
+Permite mostrar una barra de colores que explica la correspondencia entre los valores numéricos y los colores utilizados.
+
+---
+
+# 11. SCATTER PLOTS CON TAMAÑOS Y COLORES VARIABLES
+
+Una de las grandes ventajas de `plt.scatter()` es que permite representar varias dimensiones de información simultáneamente.
+
+Ejemplo:
+
+```python
+rng = np.random.RandomState(0)
+
+x = rng.randn(100)
+y = rng.randn(100)
+
+colors = rng.rand(100)
+sizes = 1000 * rng.rand(100)
+
+plt.scatter(
+    x,
+    y,
+    c=colors,
+    s=sizes,
+    alpha=0.8,
+    cmap='viridis'
+)
+
+plt.colorbar()
+```
+
+### Explicación del ejemplo
+
+Primero se generan 100 observaciones aleatorias:
+
+```python
+x = rng.randn(100)
+y = rng.randn(100)
+```
+
+Después se generan dos variables adicionales:
+
+```python
+colors = rng.rand(100)
+sizes = 1000 * rng.rand(100)
+```
+
+Estas variables controlan la apariencia de los puntos.
+
+Finalmente:
+
+```python
+plt.scatter(
+    x,
+    y,
+    c=colors,
+    s=sizes,
+    alpha=0.8,
+    cmap='viridis'
+)
+```
+
+Se construye el gráfico de dispersión.
+
+La información se distribuye de la siguiente manera:
+
+| Elemento visual | Información representada |
+|---|---|
+| Posición horizontal | Variable X |
+| Posición vertical | Variable Y |
+| Color | Valores de `colors` |
+| Tamaño | Valores de `sizes` |
+| Transparencia | Nivel de opacidad de los puntos |
+
+La función `plt.colorbar()` permite interpretar los colores utilizados.
+
+**Conclusión:** un scatter plot puede representar más de dos variables simultáneamente, utilizando la posición, el tamaño y el color de los puntos.
+
+Esto resulta especialmente útil para visualizar conjuntos de datos multidimensionales.
+
+---
+
+# 12. EJEMPLO PRÁCTICO: DATASET IRIS
+
+El notebook utiliza el conjunto de datos Iris de Scikit-Learn para demostrar cómo representar diferentes dimensiones de información mediante un gráfico de dispersión.
+
+## 12.1. ¿Qué es el dataset Iris?
+
+Iris es un conjunto de datos que contiene observaciones de flores pertenecientes a tres especies diferentes.
+
+Para cada muestra se han medido cuatro características:
+
+1. Longitud del sépalo.
+2. Anchura del sépalo.
+3. Longitud del pétalo.
+4. Anchura del pétalo.
+
+Cada muestra pertenece a una de las tres especies de flores.
+
+## 12.2. Cargar el dataset
+
+Primero importamos la función correspondiente:
+
+```python
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+```
+
+El objeto `iris` contiene los datos, los nombres de las características y las etiquetas de las especies.
+
+## 12.3. Consultar los nombres de las características
+
+```python
+iris.feature_names
+```
+
+Permite consultar los nombres de las cuatro variables medidas.
+
+## 12.4. Consultar los datos
+
+```python
+iris
+```
+
+Permite examinar el objeto completo del conjunto de datos.
+
+## 12.5. Consultar las especies
+
+```python
+print(iris.target_names)
+```
+
+Permite obtener los nombres de las tres especies.
+
+## 12.6. Transponer los datos
+
+```python
+features = iris.data.T
+```
+
+La matriz original `iris.data` tiene las observaciones organizadas por filas y las características por columnas.
+
+La operación `.T` transpone la matriz.
+
+Así, cada fila de `features` corresponde a una característica.
+
+Podemos acceder a ellas mediante índices:
+
+| Índice | Característica |
+|---|---|
+| `features[0]` | Longitud del sépalo |
+| `features[1]` | Anchura del sépalo |
+| `features[2]` | Longitud del pétalo |
+| `features[3]` | Anchura del pétalo |
+
+## 12.7. Representación de cuatro dimensiones
+
+```python
+features = iris.data.T
+
+plt.scatter(
+    features[0],
+    features[2],
+    alpha=0.5,
+    s=100 * features[3],
+    c=iris.target,
+    cmap='viridis'
+)
+
+plt.xlabel(iris.feature_names[0])
+plt.ylabel(iris.feature_names[2])
+
+plt.colorbar()
+```
+
+### Interpretación del gráfico
+
+Este gráfico representa cuatro dimensiones diferentes:
+
+| Dimensión | Representación |
+|---|---|
+| Primera dimensión | Posición X: longitud del sépalo. |
+| Segunda dimensión | Posición Y: longitud del pétalo. |
+| Tercera dimensión | Tamaño del punto: anchura del pétalo. |
+| Cuarta dimensión | Color del punto: especie de la flor. |
+
+Por tanto, un único gráfico permite estudiar simultáneamente cuatro variables.
+
+### Importancia de los scatter plots multidimensionales
+
+Los gráficos de dispersión con múltiples colores y tamaños permiten:
+
+- Explorar relaciones entre variables.
+- Identificar agrupaciones.
+- Diferenciar categorías.
+- Detectar patrones.
+- Representar información multidimensional.
+- Facilitar tanto la exploración como la presentación de datos.
+
+---
+
+# 13. DIFERENCIAS ENTRE `plt.plot()` Y `plt.scatter()`: EFICIENCIA
+
+Aunque ambas funciones permiten representar puntos, existen diferencias importantes en cuanto a rendimiento.
+
+La elección entre `plt.plot()` y `plt.scatter()` depende principalmente de las características del conjunto de datos y del nivel de personalización necesario.
+
+## 13.1. Funcionamiento de `plt.scatter()`
+
+`plt.scatter()` permite modificar individualmente el tamaño y el color de cada punto.
+
+Por tanto, el renderizador debe realizar trabajo adicional para construir y representar cada punto con sus propiedades particulares.
+
+## 13.2. Funcionamiento de `plt.plot()`
+
+En `plt.plot()`, los puntos de un mismo trazado tienen esencialmente las mismas propiedades visuales.
+
+El trabajo de determinar su apariencia se realiza una sola vez para el conjunto de datos.
+
+Por este motivo, su representación puede ser más eficiente.
+
+## 13.3. Comparación
+
+| Característica | `plt.plot()` | `plt.scatter()` |
+|---|---|---|
+| Gráficos de líneas | Sí | No es su finalidad principal |
+| Puntos individuales | Sí | Sí |
+| Tamaño individual por punto | No como capacidad principal | Sí |
+| Color individual por punto | No como capacidad principal | Sí |
+| Personalización multidimensional | Más limitada | Mayor |
+| Eficiencia con muchos puntos | Generalmente superior | Puede ser inferior |
+| Personalización individual | Limitada | Muy flexible |
+
+## 13.4. ¿Cuál utilizar?
+
+**Utilizar `plt.plot()` cuando:**
+
+- Se quieren representar funciones matemáticas.
+- Se necesitan gráficos de líneas.
+- Los puntos comparten las mismas propiedades visuales.
+- Se trabaja con conjuntos de datos grandes y se prioriza la eficiencia.
+
+**Utilizar `plt.scatter()` cuando:**
+
+- Se quieren representar observaciones independientes.
+- Cada punto necesita un tamaño diferente.
+- Cada punto necesita un color diferente.
+- Se quieren visualizar varias dimensiones de información.
+
+### Conclusión sobre eficiencia
+
+Cuando los conjuntos de datos superan unos pocos miles de puntos, `plt.plot()` puede ser notablemente más eficiente que `plt.scatter()`.
+
+Por tanto, si no necesitamos asignar propiedades visuales individuales a cada punto, es preferible utilizar `plt.plot()` cuando trabajamos con grandes conjuntos de datos.
+
+---
+
+# 14. PERSONALIZACIÓN DE LAS LEYENDAS
+
+Las leyendas permiten interpretar correctamente los diferentes elementos de una visualización.
+
+Su función es asociar cada elemento gráfico con un significado.
+
+Por ejemplo, en un gráfico que contiene dos líneas, una leyenda permite identificar qué línea representa el seno y cuál representa el coseno.
+
+Matplotlib permite personalizar diferentes aspectos de las leyendas:
+
+- Su posición.
+- Su marco.
+- El número de columnas.
+- La transparencia.
+- La sombra.
+- Los bordes.
+- El relleno.
+- Los elementos que aparecen.
+- Las etiquetas.
+
+## 14.1. Crear una leyenda básica
+
+La función principal es:
+
+```python
+plt.legend()
+```
+
+En la interfaz orientada a objetos:
+
+```python
+ax.legend()
+```
+
+La función crea automáticamente una leyenda utilizando los elementos del gráfico que tengan asignado un atributo `label`.
+
+Ejemplo:
+
+```python
+x = np.linspace(0, 10, 1000)
+
+fig, ax = plt.subplots()
+
+ax.plot(
+    x,
+    np.sin(x),
+    '-b',
+    label='Sine'
+)
+
+ax.plot(
+    x,
+    np.cos(x),
+    '--r',
+    label='Cosine'
+)
+
+ax.axis([0, 4, 0, 3])
+
+ax.legend()
+```
+
+Cada línea aparece identificada por su etiqueta.
+
+## 14.2. Personalizar la posición de la leyenda: `loc`
+
+El argumento `loc` permite establecer la posición de la leyenda.
+
+Ejemplo:
+
+```python
+ax.legend(loc='upper left')
+```
+
+Algunas posiciones habituales son:
+
+| Valor | Posición |
+|---|---|
+| `'upper left'` | Superior izquierda |
+| `'upper right'` | Superior derecha |
+| `'lower left'` | Inferior izquierda |
+| `'lower right'` | Inferior derecha |
+| `'lower center'` | Centro inferior |
+| `'upper center'` | Centro superior |
+| `'center'` | Centro |
+
+Ejemplo:
+
+```python
+ax.legend(
+    loc='upper left',
+    frameon=True
+)
+```
+
+## 14.3. Mostrar u ocultar el marco: `frameon`
+
+El argumento `frameon` permite controlar la presencia del marco de la leyenda.
+
+```python
+ax.legend(frameon=True)
+```
+
+- `True`: muestra el marco.
+- `False`: oculta el marco.
+
+Ejemplo:
+
+```python
+ax.legend(
+    loc='lower center',
+    frameon=False
+)
+```
+
+## 14.4. Número de columnas: `ncol`
+
+El argumento `ncol` permite determinar cuántas columnas tendrá la leyenda.
+
+```python
+ax.legend(ncol=2)
+```
+
+Ejemplo:
+
+```python
+ax.legend(
+    loc='lower center',
+    frameon=False,
+    ncol=2
+)
+```
+
+Esto permite distribuir horizontalmente las diferentes etiquetas.
+
+## 14.5. Marco redondeado: `fancybox`
+
+Permite utilizar un marco con esquinas redondeadas.
+
+```python
+ax.legend(fancybox=True)
+```
+
+## 14.6. Transparencia del marco: `framealpha`
+
+Permite establecer el nivel de transparencia del marco.
+
+```python
+ax.legend(framealpha=0.1)
+```
+
+Los valores se encuentran entre 0 y 1.
+
+- `0`: completamente transparente.
+- `1`: completamente opaco.
+
+## 14.7. Añadir sombra: `shadow`
+
+Permite añadir una sombra a la leyenda.
+
+```python
+ax.legend(shadow=True)
+```
+
+## 14.8. Relleno del marco: `borderpad`
+
+Permite controlar el espacio interior del marco alrededor del contenido de la leyenda.
+
+```python
+ax.legend(borderpad=5)
+```
+
+### Ejemplo completo de personalización
+
+```python
+ax.legend(
+    frameon=True,
+    ncol=2,
+    fancybox=True,
+    framealpha=0.1,
+    shadow=True,
+    borderpad=5
+)
+```
+
+Estos argumentos permiten adaptar la estética de la leyenda al diseño del gráfico.
+
+---
+
+# 15. SELECCIÓN DE ELEMENTOS PARA LA LEYENDA
+
+Por defecto, Matplotlib incluye en la leyenda todos los elementos del gráfico que tengan asignado un atributo `label`.
+
+Sin embargo, en ocasiones necesitamos seleccionar únicamente algunos elementos.
+
+Existen diferentes formas de controlar qué elementos aparecen.
+
+## 15.1. Utilizar los objetos devueltos por `plt.plot()`
+
+La función `plt.plot()` puede generar varias líneas en una única llamada.
+
+Además, devuelve una lista de objetos de tipo `Line2D`.
+
+Estos objetos representan las líneas creadas.
+
+Ejemplo:
+
+```python
+y = np.sin(
+    x[:, np.newaxis] +
+    np.pi * np.arange(0, 2, 0.5)
+)
+
+lines = plt.plot(x, y)
+```
+
+La variable `lines` contiene las líneas creadas.
+
+Podemos seleccionar únicamente las que queremos incluir en la leyenda.
+
+```python
+plt.legend(
+    lines[:2],
+    ['first', 'second']
+)
+```
+
+### Explicación
+
+- `lines`: contiene los objetos correspondientes a las líneas.
+- `lines[:2]`: selecciona las dos primeras líneas.
+- `['first', 'second']`: proporciona las etiquetas que aparecerán en la leyenda.
+
+Esta técnica permite decidir manualmente qué elementos aparecen.
+
+## 15.2. Utilizar el argumento `label`
+
+En la práctica, suele ser más sencillo asignar directamente una etiqueta a cada elemento que queremos mostrar.
+
+Ejemplo:
+
+```python
+plt.plot(
+    x,
+    y[:, 0],
+    label='first'
+)
+
+plt.plot(
+    x,
+    y[:, 1],
+    label='second'
+)
+
+plt.plot(
+    x,
+    y[:, 2:]
+)
+
+plt.legend(
+    framealpha=1,
+    frameon=True
+)
+```
+
+En este ejemplo:
+
+- Las dos primeras líneas tienen etiquetas.
+- La tercera llamada no tiene etiqueta.
+- La leyenda incluye únicamente los elementos etiquetados.
+
+**Importante:** por defecto, Matplotlib ignora los elementos que no tienen un atributo `label` establecido.
+
+Esta característica permite controlar fácilmente qué información aparece en la leyenda.
+
+---
+
+# 16. CREAR LEYENDAS PARA EL TAMAÑO DE LOS PUNTOS
+
+En ocasiones, una leyenda convencional no es suficiente.
+
+Por ejemplo, cuando utilizamos el tamaño de los puntos para representar una variable, necesitamos explicar qué significa cada tamaño.
+
+Un ejemplo es representar ciudades utilizando:
+
+- Su ubicación geográfica.
+- Su población.
+- Su superficie.
+
+En este caso:
+
+- La longitud y la latitud determinan la posición.
+- El color representa la población.
+- El tamaño representa la superficie.
+
+Es necesario crear una leyenda que explique qué significa cada tamaño de punto.
+
+## 16.1. Cargar el conjunto de datos
+
+El notebook utiliza un archivo CSV con información de ciudades de California.
+
+```python
+import pandas as pd
+
+cities = pd.read_csv(
+    'data/california_cities.csv'
+)
+
+cities.head()
+```
+
+`pd.read_csv()` permite cargar los datos desde un archivo CSV.
+
+## 16.2. Extraer las variables
+
+```python
+lat = cities['latd']
+lon = cities['longd']
+
+population = cities['population_total']
+area = cities['area_total_km2']
+```
+
+Las variables utilizadas son:
+
+| Variable | Significado |
+|---|---|
+| `lat` | Latitud de las ciudades |
+| `lon` | Longitud de las ciudades |
+| `population` | Población total |
+| `area` | Superficie total en km² |
+
+## 16.3. Crear el gráfico de dispersión
+
+```python
+plt.figure(figsize=(20, 10))
+
+plt.scatter(
+    lon,
+    lat,
+    label=None,
+    c=np.log10(population),
+    cmap='viridis',
+    s=area,
+    linewidth=0,
+    alpha=0.5
+)
+
+plt.xlabel('longitude')
+plt.ylabel('latitude')
+
+plt.colorbar(
+    label='log$_{10}$(population)'
+)
+
+plt.clim(3, 7)
+
+plt.title(
+    'California Cities: Area and Population'
+)
+```
+
+### Interpretación de los argumentos
+
+**`lon` y `lat`**
+
+Determinan la posición geográfica de cada ciudad.
+
+- Eje X: longitud.
+- Eje Y: latitud.
+
+**`c=np.log10(population)`**
+
+El color representa el logaritmo decimal de la población.
+
+La expresión matemática es:
+
+$$
+\log_{10}(population)
+$$
+
+**`cmap='viridis'`**
+
+Establece el mapa de colores utilizado.
+
+**`s=area`**
+
+El tamaño de cada punto representa la superficie de la ciudad.
+
+**`linewidth=0`**
+
+Establece el grosor del borde de los puntos en cero.
+
+**`alpha=0.5`**
+
+Establece un nivel de transparencia del 50 %.
+
+**`plt.colorbar()`**
+
+Añade una escala para interpretar los colores.
+
+**`plt.clim(3, 7)`**
+
+Establece los límites de la escala de colores.
+
+**`plt.figure(figsize=(20, 10))`**
+
+Permite establecer las dimensiones de la figura.
+
+---
+
+# 17. CREAR UNA LEYENDA PERSONALIZADA MEDIANTE LISTAS VACÍAS
+
+El problema del ejemplo anterior es que la leyenda convencional no explica automáticamente qué significa cada tamaño de punto.
+
+Queremos que la leyenda muestre círculos de diferentes tamaños asociados a superficies concretas.
+
+Para conseguirlo, podemos crear objetos gráficos auxiliares que no representen datos reales.
+
+La estrategia consiste en utilizar listas vacías.
+
+## 17.1. Crear elementos artificiales para la leyenda
+
+```python
+for area in [100, 300, 500]:
+
+    plt.scatter(
+        [],
+        [],
+        c='k',
+        alpha=0.3,
+        s=area,
+        label=str(area) + ' km$^2$'
+    )
+```
+
+### ¿Qué está ocurriendo?
+
+Se ejecuta un bucle para crear tres elementos:
+
+- Un círculo de tamaño 100.
+- Un círculo de tamaño 300.
+- Un círculo de tamaño 500.
+
+La característica fundamental es que se utilizan listas vacías:
+
+```python
+plt.scatter([], [])
+```
+
+Esto permite crear objetos gráficos etiquetados sin añadir observaciones reales al gráfico.
+
+Los objetos creados pueden ser recogidos posteriormente por la función `plt.legend()`.
+
+Por tanto, conseguimos incorporar símbolos a la leyenda que sirven únicamente como referencia visual.
+
+## 17.2. Configurar la leyenda personalizada
+
+```python
+plt.legend(
+    scatterpoints=1,
+    frameon=False,
+    labelspacing=1,
+    title='City Area'
+)
+```
+
+### Argumentos utilizados
+
+**`scatterpoints`**
+
+Permite establecer el número de puntos representados en cada entrada de la leyenda.
+
+**`frameon`**
+
+Controla la visualización del marco.
+
+**`labelspacing`**
+
+Permite ajustar el espacio vertical entre las diferentes etiquetas.
+
+**`title`**
+
+Permite establecer un título para la leyenda.
+
+### ¿Por qué funciona esta estrategia?
+
+La leyenda de Matplotlib se construye a partir de objetos gráficos presentes en el gráfico.
+
+Si queremos mostrar un símbolo concreto que no existe entre los datos representados, podemos crear artificialmente un objeto gráfico con las características deseadas.
+
+Al utilizar listas vacías:
+
+```python
+plt.scatter([], [], ...)
+```
+
+Creamos un objeto etiquetado sin representar observaciones adicionales.
+
+Matplotlib lo reconoce y lo incorpora a la leyenda.
+
+**Esta técnica permite crear leyendas sofisticadas y personalizadas.**
+
+---
+
+# 18. VISUALIZACIÓN DE DATOS GEOGRÁFICOS Y BASEMAP
+
+En el ejemplo de las ciudades de California se representan datos geográficos mediante coordenadas de longitud y latitud.
+
+Sin embargo, el gráfico sería más claro si incluyera los límites del estado y otros elementos geográficos.
+
+El notebook menciona Basemap como una herramienta de Matplotlib para trabajar con datos geográficos.
+
+Basemap permite incorporar elementos cartográficos que ayudan a contextualizar las coordenadas representadas.
+
+Su utilización se plantea como un tema posterior, dedicado específicamente a la representación de datos geográficos.
+
+---
+
+# 19. CREAR MÚLTIPLES LEYENDAS EN UN MISMO GRÁFICO
+
+En ocasiones necesitamos incorporar varias leyendas a un mismo sistema de ejes.
+
+Por ejemplo, podemos querer diferenciar dos grupos de líneas utilizando dos leyendas independientes.
+
+Sin embargo, Matplotlib presenta una limitación en su interfaz estándar.
+
+## 19.1. Limitación de `plt.legend()` y `ax.legend()`
+
+Por defecto, Matplotlib permite mantener una única leyenda estándar por gráfico.
+
+Si ejecutamos dos veces:
+
+```python
+ax.legend()
+```
+
+La segunda llamada sustituye a la primera.
+
+Por tanto, no es posible crear dos leyendas independientes simplemente llamando dos veces a `ax.legend()`.
+
+## 19.2. Solución: crear objetos Legend manualmente
+
+Para solucionar esta limitación podemos crear un objeto `Legend` desde cero y añadirlo manualmente al gráfico mediante:
+
+```python
+ax.add_artist()
+```
+
+Esto permite conservar una primera leyenda y añadir una segunda de forma independiente.
+
+## 19.3. Ejemplo completo
+
+```python
+fig, ax = plt.subplots()
+
+lines = []
+
+styles = ['-', '--', '-.', ':']
+
+x = np.linspace(0, 10, 1000)
+
+for i in range(4):
+
+    lines += ax.plot(
+        x,
+        np.sin(x - i * np.pi / 2),
+        styles[i],
+        color='black'
+    )
+
+ax.axis('equal')
+```
+
+En este primer bloque:
+
+1. Se crea una figura y unos ejes.
+2. Se inicializa una lista vacía llamada `lines`.
+3. Se definen cuatro estilos diferentes.
+4. Se generan los valores del eje X.
+5. Se representan cuatro funciones seno desplazadas.
+6. Los objetos de las líneas se almacenan en la lista `lines`.
+
+Las cuatro líneas utilizan los siguientes estilos:
+
+```python
+styles = ['-', '--', '-.', ':']
+```
+
+## 19.4. Crear la primera leyenda
+
+```python
+ax.legend(
+    lines[:2],
+    ['line A', 'line B'],
+    loc='upper right',
+    frameon=False
+)
+```
+
+Se seleccionan las dos primeras líneas.
+
+La primera leyenda identifica:
+
+- `line A`.
+- `line B`.
+
+Se coloca en la esquina superior derecha.
+
+## 19.5. Crear la segunda leyenda
+
+```python
+from matplotlib.legend import Legend
+
+leg = Legend(
+    ax,
+    lines[2:],
+    ['line C', 'line D'],
+    loc='lower right',
+    frameon=False
+)
+
+ax.add_artist(leg)
+```
+
+### Explicación
+
+**Importación de `Legend`**
+
+```python
+from matplotlib.legend import Legend
+```
+
+Permite crear directamente objetos de tipo leyenda.
+
+**Creación del objeto**
+
+```python
+leg = Legend(
+    ax,
+    lines[2:],
+    ['line C', 'line D'],
+    loc='lower right',
+    frameon=False
+)
+```
+
+Se crea una segunda leyenda utilizando:
+
+- `ax`: los ejes donde se incorporará la leyenda.
+- `lines[2:]`: las dos últimas líneas.
+- `['line C', 'line D']`: las etiquetas correspondientes.
+- `loc='lower right'`: posición inferior derecha.
+- `frameon=False`: sin marco.
+
+**Añadir el objeto al gráfico**
+
+```python
+ax.add_artist(leg)
+```
+
+Este método añade manualmente el segundo objeto de leyenda al gráfico.
+
+De esta manera, ambas leyendas pueden mantenerse simultáneamente.
+
+## 19.6. Concepto de Artist en Matplotlib
+
+El notebook introduce aquí el concepto de objetos artísticos de bajo nivel (*Artists*).
+
+Los elementos que componen una visualización de Matplotlib son objetos que forman parte de su estructura gráfica.
+
+Las leyendas también son objetos de este tipo.
+
+Cuando utilizamos:
+
+```python
+ax.legend()
+```
+
+Matplotlib realiza internamente una serie de operaciones:
+
+1. Crea un objeto `Legend`.
+2. Guarda el objeto en el atributo `legend_`.
+3. Añade la leyenda a la figura durante el proceso de representación.
+
+Por eso, cuando ejecutamos una segunda llamada a `ax.legend()`, se sustituye la leyenda anterior.
+
+La solución consiste en crear directamente otro objeto `Legend` y añadirlo mediante:
+
+```python
+ax.add_artist()
+```
+
+Esto permite conservar la primera leyenda y añadir otras adicionales.
+
+Para examinar el funcionamiento interno de las funciones se puede utilizar la ayuda de IPython:
+
+```python
+ax.legend??
+```
+
+Esto permite inspeccionar el código fuente de la función.
+
+---
+
+# 20. RESUMEN GENERAL DE LAS FUNCIONES Y ARGUMENTOS
+
+Esta sección recopila las funciones, métodos y argumentos más importantes estudiados en el notebook.
+
+## 20.1. Creación de gráficos
+
+| Función | Utilidad |
+|---|---|
+| `plt.figure()` | Crea una figura. |
+| `plt.axes()` | Crea unos ejes. |
+| `plt.subplots()` | Crea una figura y uno o varios ejes. |
+| `plt.plot(x, y)` | Representa líneas o puntos. |
+| `ax.plot(x, y)` | Representa datos sobre unos ejes concretos. |
+| `plt.scatter(x, y)` | Crea un gráfico de dispersión. |
+| `plt.colorbar()` | Añade una escala de colores. |
+
+## 20.2. Personalización de líneas y puntos
+
+| Argumento | Utilidad |
+|---|---|
+| `color` | Establece el color. |
+| `linestyle` | Establece el estilo de línea. |
+| `linewidth` | Modifica el grosor de la línea. |
+| `marker` | Establece el símbolo de los puntos. |
+| `markersize` | Modifica el tamaño de los marcadores. |
+| `markerfacecolor` | Modifica el color interior del marcador. |
+| `markeredgecolor` | Modifica el color del borde del marcador. |
+| `markeredgewidth` | Modifica el grosor del borde. |
+| `alpha` | Controla la transparencia. |
+| `c` | Establece el color de los puntos en `scatter()`. |
+| `s` | Establece el tamaño de los puntos en `scatter()`. |
+| `cmap` | Selecciona el mapa de colores. |
+
+## 20.3. Límites y proporciones
+
+| Función | Utilidad |
+|---|---|
+| `plt.xlim()` | Modifica los límites del eje X. |
+| `plt.ylim()` | Modifica los límites del eje Y. |
+| `plt.axis()` | Modifica los límites de ambos ejes. |
+| `plt.axis('tight')` | Ajusta los límites al contenido. |
+| `plt.axis('equal')` | Establece una relación de aspecto igual. |
+| `plt.clim()` | Modifica los límites de la escala de colores. |
+
+## 20.4. Títulos y etiquetas
+
+| Función | Utilidad |
+|---|---|
+| `plt.title()` | Establece el título. |
+| `plt.xlabel()` | Establece la etiqueta del eje X. |
+| `plt.ylabel()` | Establece la etiqueta del eje Y. |
+| `ax.set()` | Modifica varias propiedades de los ejes simultáneamente. |
+| `ax.set_title()` | Establece el título mediante la interfaz orientada a objetos. |
+| `ax.set_xlabel()` | Establece la etiqueta X mediante la interfaz orientada a objetos. |
+| `ax.set_ylabel()` | Establece la etiqueta Y mediante la interfaz orientada a objetos. |
+
+## 20.5. Leyendas
+
+| Función o argumento | Utilidad |
+|---|---|
+| `plt.legend()` | Crea una leyenda. |
+| `ax.legend()` | Crea una leyenda sobre unos ejes concretos. |
+| `label` | Asigna una etiqueta a un elemento gráfico. |
+| `loc` | Establece la posición de la leyenda. |
+| `frameon` | Muestra u oculta el marco. |
+| `ncol` | Establece el número de columnas. |
+| `fancybox` | Permite utilizar esquinas redondeadas. |
+| `framealpha` | Controla la transparencia del marco. |
+| `shadow` | Añade una sombra. |
+| `borderpad` | Modifica el relleno interior del marco. |
+| `scatterpoints` | Establece los puntos mostrados en cada entrada. |
+| `labelspacing` | Modifica el espacio entre etiquetas. |
+| `title` | Añade un título a la leyenda. |
+| `Legend` | Permite crear manualmente un objeto de leyenda. |
+| `ax.add_artist()` | Añade manualmente un objeto gráfico a los ejes. |
+
+## 20.6. Funciones complementarias de NumPy y Pandas
+
+| Función | Utilidad |
+|---|---|
+| `np.linspace()` | Genera valores distribuidos uniformemente. |
+| `np.sin()` | Calcula el seno. |
+| `np.cos()` | Calcula el coseno. |
+| `np.random.RandomState()` | Inicializa un generador de números aleatorios. |
+| `rng.rand()` | Genera números aleatorios uniformes. |
+| `rng.randn()` | Genera números aleatorios con distribución normal estándar. |
+| `np.log10()` | Calcula el logaritmo decimal. |
+| `np.arange()` | Genera secuencias de valores. |
+| `pd.read_csv()` | Lee datos desde archivos CSV. |
+| `.head()` | Muestra las primeras filas de un DataFrame. |
+| `.T` | Transpone una matriz o estructura compatible. |
+
+---
+
+# 21. CONCEPTOS FUNDAMENTALES QUE HAY QUE RECORDAR
+
+## 21.1. Figure y Axes
+
+Son los dos objetos fundamentales de Matplotlib.
+
+- `Figure`: contenedor general del gráfico.
+- `Axes`: área donde se representan los datos.
+
+## 21.2. `plt.plot()` frente a `plt.scatter()`
+
+La diferencia más importante es la personalización individual de los puntos.
+
+- `plt.plot()`: adecuado para líneas y puntos con propiedades visuales compartidas.
+- `plt.scatter()`: adecuado para puntos independientes con tamaños y colores variables.
+
+Además, `plt.plot()` suele ser más eficiente con grandes cantidades de puntos cuando no necesitamos personalización individual.
+
+## 21.3. Personalización de líneas
+
+Los principales argumentos son:
+
+```python
+color
+linestyle
+linewidth
+```
+
+## 21.4. Personalización de marcadores
+
+Los principales argumentos son:
+
+```python
+marker
+markersize
+markerfacecolor
+markeredgecolor
+markeredgewidth
+```
+
+## 21.5. Visualización multidimensional
+
+Un scatter plot puede representar simultáneamente varias dimensiones:
+
+- Coordenada X.
+- Coordenada Y.
+- Tamaño del punto.
+- Color del punto.
+
+Esto permite visualizar más información que la que proporcionan exclusivamente los dos ejes.
+
+## 21.6. Leyendas
+
+La función principal es:
+
+```python
+plt.legend()
+```
+
+Las etiquetas se asignan mediante:
+
+```python
+label='nombre'
+```
+
+Se pueden personalizar utilizando:
+
+```python
+loc
+frameon
+ncol
+fancybox
+framealpha
+shadow
+borderpad
+```
+
+## 21.7. Leyendas personalizadas
+
+Se pueden crear elementos artificiales para una leyenda mediante:
+
+```python
+plt.scatter([], [], ...)
+```
+
+Esta técnica permite representar símbolos que no corresponden a observaciones reales, pero que sirven para explicar las escalas visuales.
+
+## 21.8. Múltiples leyendas
+
+Matplotlib mantiene una única leyenda estándar por gráfico.
+
+Para añadir varias leyendas se puede crear un objeto `Legend` manualmente y utilizar:
+
+```python
+ax.add_artist(leg)
+```
+
+---
+
+# 22. CHULETA FINAL: EJEMPLOS DE SINTAXIS
+
+## Crear un gráfico de líneas
+
+```python
+plt.plot(x, y)
+```
+
+## Crear varios gráficos de líneas
+
+```python
+plt.plot(x, np.sin(x))
+plt.plot(x, np.cos(x))
+```
+
+## Crear una figura y unos ejes
+
+```python
+fig, ax = plt.subplots()
+```
+
+## Cambiar el color
+
+```python
+plt.plot(x, y, color='red')
+```
+
+## Cambiar el estilo de línea
+
+```python
+plt.plot(x, y, linestyle='--')
+```
+
+## Combinar color y estilo
+
+```python
+plt.plot(x, y, '-r')
+```
+
+## Cambiar los límites
+
+```python
+plt.xlim(0, 10)
+plt.ylim(-1, 1)
+```
+
+## Establecer los límites conjuntamente
+
+```python
+plt.axis([0, 10, -1, 1])
+```
+
+## Ajustar automáticamente los límites
+
+```python
+plt.axis('tight')
+```
+
+## Establecer una relación de aspecto igual
+
+```python
+plt.axis('equal')
+```
+
+## Añadir un título
+
+```python
+plt.title('Mi gráfico')
+```
+
+## Añadir etiquetas
+
+```python
+plt.xlabel('Eje X')
+plt.ylabel('Eje Y')
+```
+
+## Añadir una leyenda
+
+```python
+plt.plot(x, y, label='Mi línea')
+plt.legend()
+```
+
+## Crear un scatter plot
+
+```python
+plt.scatter(x, y)
+```
+
+## Crear un scatter plot con tamaños y colores variables
+
+```python
+plt.scatter(
+    x,
+    y,
+    c=colors,
+    s=sizes,
+    alpha=0.5,
+    cmap='viridis'
+)
+
+plt.colorbar()
+```
+
+## Personalizar los marcadores
+
+```python
+plt.plot(
+    x,
+    y,
+    '-ok',
+    markersize=10,
+    markerfacecolor='blue',
+    markeredgecolor='black',
+    markeredgewidth=2
+)
+```
+
+## Personalizar una leyenda
+
+```python
+plt.legend(
+    loc='upper left',
+    frameon=True,
+    ncol=2,
+    fancybox=True,
+    framealpha=0.5,
+    shadow=True
+)
+```
+
+## Seleccionar elementos de la leyenda
+
+```python
+lines = plt.plot(x, y)
+
+plt.legend(
+    lines[:2],
+    ['first', 'second']
+)
+```
+
+## Crear elementos auxiliares para una leyenda
+
+```python
+for size in [100, 300, 500]:
+
+    plt.scatter(
+        [],
+        [],
+        s=size,
+        label=str(size)
+    )
+
+plt.legend()
+```
+
+## Crear múltiples leyendas
+
+```python
+from matplotlib.legend import Legend
+
+leg = Legend(
+    ax,
+    lines,
+    ['A', 'B'],
+    loc='lower right'
+)
+
+ax.add_artist(leg)
+```
+
+---
+
+# 23. CONCLUSIÓN GENERAL
+
+Matplotlib proporciona herramientas muy flexibles para representar y analizar datos mediante gráficos de líneas y gráficos de dispersión.
+
+Los gráficos de líneas permiten visualizar funciones y tendencias, personalizando el color, el estilo y los límites de los ejes.
+
+Los gráficos de dispersión permiten representar observaciones individuales y utilizar características visuales como el tamaño, el color y la transparencia para incorporar dimensiones adicionales de información.
+
+La diferencia entre `plt.plot()` y `plt.scatter()` es especialmente importante: aunque ambas funciones pueden representar puntos, `plt.scatter()` ofrece una mayor capacidad de personalización individual, mientras que `plt.plot()` puede ser más eficiente con grandes conjuntos de datos.
+
+Por otra parte, las leyendas permiten interpretar correctamente los elementos visuales de una representación. Matplotlib ofrece herramientas para personalizar su posición, apariencia y contenido, así como mecanismos más avanzados para construir leyendas personalizadas y múltiples.
+
+**Los conceptos fundamentales de este tema son:**
+
+1. Comprender la diferencia entre `Figure` y `Axes`.
+2. Saber crear gráficos mediante `plt.plot()` y `ax.plot()`.
+3. Personalizar los colores y estilos de las líneas.
+4. Controlar los límites y las proporciones de los ejes.
+5. Añadir títulos y etiquetas.
+6. Crear y personalizar leyendas.
+7. Crear gráficos de dispersión mediante `plt.scatter()`.
+8. Representar varias dimensiones mediante la posición, el tamaño y el color de los puntos.
+9. Comprender las diferencias de rendimiento entre `plot()` y `scatter()`.
+10. Crear leyendas personalizadas y múltiples mediante objetos `Legend`.
+
+Dominar estos conceptos proporciona una base sólida para realizar visualizaciones de datos más completas, informativas y personalizadas utilizando Matplotlib.
+
+
+
+
+<hr>
