@@ -1388,3 +1388,157 @@ shutil.move(ruta_origen, "data")
 
 
 
+
+
+
+
+
+# Visualización de Datos con Matplotlib
+
+**Matplotlib es una librería de visualización de datos multiplataforma construida sobre arrays de NumPy y diseñada para trabajar con el ecosistema amplio de SciPy**. Fue creada por John Hunter en 2002, originalmente como un parche para IPython que permitiera el trazado interactivo al estilo de MATLAB a través de [gnuplot](http://gnuplot.info) desde la línea de comandos. 
+
+El proyecto recibió un gran impulso inicial al ser adoptado por el *Space Telescope Science Institute* (los desarrolladores detrás del telescopio Hubble), institución que apoyó financieramente el desarrollo de Matplotlib y amplió enormemente sus capacidades.
+
+Una de las características más importantes de Matplotlib es su **capacidad de funcionar bien con muchos sistemas operativos y backends de gráficos**, soportando docenas de ellos y múltiples tipos de salida. Este enfoque multiplataforma ha conducido a una gran base de usuarios, a una activa comunidad de desarrolladores y a su ubicuidad dentro del mundo científico de Python.
+
+En los últimos años, nuevas herramientas basadas en la web (D3js, HTML5 canvas) o en el lenguaje R (ggplot, ggvis) han hecho que la interfaz clásica de Matplotlib se sienta anticuada. Sin embargo, sigue siendo una pieza vital de la pila de visualización debido a su robustez como motor gráfico. Actualmente, sirve de base y envoltura (*wrapper*) para APIs más limpias y modernas, como **Seaborn**, [ggpy](http://github.io), [HoloViews](http://holoviews.org), [Altair](http://github.io) e **incluso el propio Pandas**. A pesar de estos envoltorios, a menudo sigue siendo útil sumergirse en la sintaxis de Matplotlib para ajustar la salida final del gráfico.
+
+---
+
+## 🛠️ Configuración General y Estilos
+
+### Importar Matplotlib
+Al igual que se utiliza `np` para NumPy y `pd` para Pandas, existe una abreviatura estándar por convención para las importaciones de Matplotlib:
+```python
+# import matplotlib as mpl
+import matplotlib.pyplot as plt
+```
+La interfaz `plt` es la que se utiliza más a menudo a lo largo de la creación de visualizaciones.
+
+### Ajustes del Estilo
+Se utiliza la directiva `plt.style` para elegir los estilos estéticos adecuados para las figuras.
+* **Estilo clásico:** Asegura que los gráficos utilicen el estilo clásico de Matplotlib mediante el comando:
+  ```python
+  plt.style.use('classic')
+  ```
+* **Estilos disponibles:** Se puede consultar la lista de hojas de estilo por defecto compatibles con el sistema (disponibles a partir de la versión 1.5 de Matplotlib) ejecutando:
+  ```python
+  print(plt.style.available)
+  ```
+
+---
+
+## 🖥️ ¿`show()` o no `show()`?: Cómo Mostrar Gráficos
+
+La forma de ver y interactuar con los gráficos de Matplotlib depende completamente del contexto. Los tres contextos aplicables son: el uso de Matplotlib en un script, en una terminal de IPython, o en un notebook de IPython.
+
+### 1. Plotting desde un Script (.py)
+Si se utiliza Matplotlib desde un script independiente, la función `plt.show()` es la herramienta adecuada.
+* **Función:** Inicia un bucle de eventos, busca todos los objetos figurativos actualmente activos y abre una o más ventanas interactivas que muestran la figura o figuras.
+* **Regla de oro:** El comando `plt.show()` debe usarse **sólo una vez por sesión de Python** y se ve más a menudo al final del script. Múltiples comandos `show()` pueden llevar a un comportamiento impredecible dependiente del backend y deben evitarse.
+
+Un ejemplo de script (*myplot.py*) sería:
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+
+plt.plot(x, np.sin(x))
+plt.plot(x, np.cos(x))
+
+plt.show()
+```
+
+### 2. Plotting desde una Consola Interactiva de IPython
+Puede ser muy conveniente utilizar Matplotlib de forma interactiva dentro de un shell de IPython, ya que este sistema está construido para trabajar bien con Matplotlib si se especifica su modo.
+* **Activación:** Se habilita este modo usando el comando mágico `%matplotlib` después de iniciar `ipython`:
+  ```ipython
+  In: %matplotlib
+  Using matplotlib backend: TkAgg
+  
+  In: import matplotlib.pyplot as plt
+  ```
+* **Visualización:** En este punto, cualquier comando de trazado `plt` hará que se abra una ventana de figura, y se pueden ejecutar otros comandos para actualizar el trazado. No es necesario utilizar `plt.show()`.
+* **Actualización:** Algunos cambios (como la modificación de las propiedades de las líneas que ya están dibujadas) no se dibujarán automáticamente; para forzar una actualización se utiliza `plt.draw()`.
+
+### 3. Plotting desde un Notebook IPython (Jupyter Notebook)
+El notebook IPython es una herramienta de análisis de datos interactiva basada en el navegador que puede combinar narrativa, código, gráficos, elementos HTML y más en un único documento ejecutable. El plotting interactivo funciona de forma similar al shell de IPython, pero ofrece opciones para incrustar los gráficos directamente en el cuaderno:
+* `%matplotlib notebook`: Conduce a gráficos **interactivos** incrustados dentro del notebook.
+* `%matplotlib inline`: Conduce a imágenes **estáticas (PNG)** de tu gráfico incrustadas en el notebook (opción generalmente más usada).
+
+---
+
+## 💾 Guardar Figuras en Archivos
+
+Matplotlib tiene la capacidad de guardar figuras en una amplia variedad de formatos de forma nativa a través del comando `savefig()`.
+
+```python
+# Ejemplo de guardado de una figura almacenada en la variable 'fig'
+fig.savefig('my_figure.png')
+```
+
+### Características del Guardado:
+* **Inferencia de formato:** El formato de archivo se infiere automáticamente a partir de la extensión del nombre de archivo dado (`.png`, `.jpg`, `.pdf`, `.svg`, etc.).
+* **Formatos soportados:** Dependen de los backends instalados. Se puede comprobar la lista de tipos de archivos soportados en el sistema actual utilizando el método del objeto *canvas* de la figura:
+  ```python
+  fig.canvas.get_supported_filetypes()
+  ```
+* **Independencia:** Al guardar la figura directamente en un archivo, no es necesario utilizar `plt.show()` o los comandos de visualización interactiva relacionados.
+
+---
+
+## 🔄 Dos Interfaces por el Precio de Una
+
+Una característica potencialmente confusa de Matplotlib es su doble interfaz: una cómoda interfaz basada en estados al estilo de MATLAB, y una interfaz más potente orientada a objetos.
+
+### 1. Interfaz Estilo MATLAB
+Gran parte de la sintaxis refleja el hecho de que Matplotlib se escribió originalmente como una alternativa en Python para los usuarios de MATLAB. Las herramientas de estilo MATLAB están contenidas en la interfaz pyplot (`plt`). 
+
+Esta interfaz es ***stateful*** (mantiene un seguimiento de la figura y los ejes "actuales", que es donde se aplican todos los comandos `plt`). Se puede obtener una referencia a estos componentes usando las rutinas `plt.gcf()` (*get current figure*) y `plt.gca()` (*get current axes*). Aunque es rápida y conveniente para gráficos simples, se vuelve torpe si se desea interactuar con varios paneles a la vez o volver a editar un panel previo.
+
+**Ejemplo de sintaxis:**
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+
+plt.figure() # Crear una figura de gráfico
+
+# Crear el primero de los dos paneles y fijar el eje actual
+plt.subplot(2, 1, 1) # (filas, columnas, número de panel)
+plt.plot(x, np.sin(x))
+
+# Crear el segundo panel y fijar el eje actual
+plt.subplot(2, 1, 2)
+plt.plot(x, np.cos(x))
+```
+
+### 2. Interfaz Orientada a Objetos
+Está pensada para situaciones más complicadas y para cuando se quiere tener un control absoluto sobre la figura. En lugar de depender de una noción de figura o ejes "activos", las funciones de trazado son *métodos* de objetos explícitos `Figure` y `Axes`. 
+
+**Ejemplo de sintaxis:**
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+
+# Crear una rejilla de gráficos de forma explícita
+# 'fig' será un objeto Figure y 'ax' será un array de objetos Axes
+fig, ax = plt.subplots(2)
+
+# Llamar al método plot() en el objeto apropiado
+ax[0].plot(x, np.sin(x))
+ax[1].plot(x, np.cos(x))
+```
+
+La diferencia fundamental radica en que, en gráficos sencillos, la elección es una cuestión de preferencia, pero el enfoque orientado a objetos se vuelve una necesidad a medida que los gráficos se vuelven más complejos, ya que permite interactuar con cualquier sección del gráfico de forma directa a través de su variable sin importar el orden.
+
+
+
+
+
+<hr>
+
