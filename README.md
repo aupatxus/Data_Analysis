@@ -4068,3 +4068,98 @@ plt.clim(-1, 1);
 
 
 <hr>
+
+
+
+
+
+
+
+
+# Análisis Exploratorio de Datos (EDA) con Seaborn
+
+El objetivo principal del análisis visual de datos no consiste únicamente en saber programar gráficos en Python, sino en **comprender qué tipo de gráfica utilizar en cada momento**. Antes de representar los datos, es indispensable dar un paso atrás para identificar su naturaleza y cuántas variables intervienen en el análisis.
+
+---
+
+## 1. Clasificación Inicial del Análisis y Tipos de Variables
+
+Antes de representar cualquier dato, es imprescindible comprender qué tipo de variable tenemos y cuántas vamos a cruzar:
+* **Una variable numérica** (cuantitativa).
+* **Una variable categórica** (cualitativa).
+* **Dos variables numéricas**.
+* **Tres o más variables numéricas**.
+* **Dos variables categóricas**.
+* **Combinación de variables numéricas y categóricas**.
+
+> **Nota teórica:** Teniendo clara esta clasificación y apoyándose en un buen catálogo de gráficas (como [data-to-viz.com](https://data-to-viz.com)), la elección de la visualización resulta mucho más sencilla.
+
+---
+
+## 2. Análisis Univariante
+
+Este análisis se centra en estudiar el comportamiento de una única variable de forma aislada.
+
+### 2.1. Variables Cuantitativas (Numéricas)
+Se utilizan para observar cómo se distribuyen los datos, dónde se concentran más, cuál es su dispersión, si presentan asimetría y si existen valores atípicos (*outliers*).
+
+* **Diagrama de Densidad (KDE - Kernel Density Estimation):**
+  * **Función:** Permite visualizar la distribución continua de los datos y su probabilidad de aparición.
+  * **Implementación:** Se utiliza `sns.distplot()` (actualmente reemplazada por `sns.histplot(..., kde=True)` o `sns.displot()`).
+* **Histograma:**
+  * **Función:** Muestra la frecuencia de aparición de todos los valores agrupados en intervalos (*bins*).
+  * **Diferencia clave con la densidad:** Es muy similar al diagrama de densidad, pero en el histograma el eje Y representa un conteo absoluto de observaciones en lugar de la probabilidad de aparición.
+  * **Utilidad adicional:** Permite agrupar visualmente una variable numérica continua para sugerir una posible categorización.
+* **Gráfico de Alfombra (*Rug plot*):**
+  * **Función:** Mediante el argumento `rug=True`, dibuja pequeñas marcas verticales sobre el eje X por cada dato individual, ofreciendo una forma muy visual de observar la concentración exacta de los valores.
+* **Diagrama de Caja (*Boxplot*):**
+  * **Función:** Resume la distribución a través de sus percentiles y cuartiles: mínimo (percentil 0 / Q0), primer cuartil (percentil 25 / Q1), mediana (percentil 50 / Q2), tercer cuartil (percentil 75 / Q3) y máximo (percentil 100 / Q4).
+  * **Ventaja principal:** Da una información muy parecida a los gráficos anteriores, pero destaca mucho más la presencia de **outliers** (valores atípicos). Se genera con `sns.boxplot()`.
+* **Diagrama de Violín (*Violinplot*):**
+  * **Función:** Es equivalente a un diagrama de caja, pero sustituye la caja rectangular por la curva de la función de distribución de densidad.
+  * **Implementación:** Se genera con `sns.violinplot()` y permite añadir detalles internos como `inner="stick"` para visualizar cada observación.
+
+### 2.2. Variables Cualitativas (Categóricas)
+Para representar una variable categórica, el enfoque teórico consiste en observar su **frecuencia de valores** (cuántas veces aparece cada categoría).
+
+* **Gráfico de Conteo (*Countplot*):**
+  * **Función:** Es el equivalente al histograma para variables categóricas; representa mediante barras la frecuencia absoluta de cada categoría (`sns.countplot()`).
+* **Gráfico de Piruleta (*Lollipop chart*):**
+  * **Función:** Alternativa visual más limpia al gráfico de barras tradicional para mostrar conteos ordenados. Se construye combinando líneas horizontales (`plt.hlines`) con puntos en sus extremos (`plt.plot(..., "o")`).
+* **Gráfico de Tarta y de Donut (*Pie chart / Donut chart*):**
+  * **Función:** Representan la proporción porcentual (`autopct`) de cada categoría respecto al total.
+  * **Construcción del Donut:** Se crea a partir de un `plt.pie()` tradicional al que se le superpone un círculo blanco en el centro mediante `plt.Circle((0,0), ...)`.
+
+---
+
+## 3. Análisis Bivariante y Multivariante
+
+Este enfoque permite comparar variables entre sí para descubrir relaciones, diferencias entre grupos o correlaciones.
+
+### 3.1. Comparativa de Variables Cuantitativas (2 a 4 variables)
+* **Boxplots múltiples + Swarmplot:**
+  * **Función:** Permiten comparar qué tan diferentes son las distribuciones de varias variables numéricas lado a lado.
+  * **Mejora visual:** Un *boxplot* por sí solo oculta la distribución exacta de los puntos internos. Superponer un `sns.swarmplot()` encima del `sns.boxplot()` evita que se escape información al mostrar cada observación individual sin solapamiento.
+* **Diagramas de Densidad e Histogramas Superpuestos:**
+  * **Función:** Permiten contrastar la forma y el solapamiento de las distribuciones de distintas variables numéricas en un mismo gráfico (`sns.kdeplot(..., shade=True)`) o en una cuadrícula de subgráficos (`plt.subplots`).
+* **Gráfico de Dispersión (*Scatter plot*):**
+  * **Función:** Representa la relación entre dos variables numéricas en los ejes X e Y (`sns.scatterplot()`).
+  * **Clasificación visual:** Al añadir una variable categórica mediante el parámetro `hue` (color), permite observar claramente si la combinación de esas dos variables numéricas sirve para distinguir o separar grupos.
+* **Jointplot:**
+  * **Función:** Gráfica compuesta (`sns.jointplot()`) que muestra en el panel central la relación bivariante entre dos variables numéricas y en los márgenes superior y derecho sus respectivas distribuciones univariantes.
+  * **Variantes:** Además de puntos tradicionales, admite representaciones hexagonales (`kind="hex"`) o de densidad (`kind="kde"`) para evitar la saturación cuando hay muchos datos.
+
+### 3.2. Comparativa de Múltiples Variables Numéricas
+* **Mapa de Calor (*Heatmap*):**
+  * **Función:** Es la herramienta perfecta para representar visualmente una **matriz de correlación** (`.corr()`) entre múltiples variables numéricas (`sns.heatmap()`).
+  * **Buenas prácticas teóricas:** Es crucial utilizar una buena paleta de colores divergente (evitando escalas que dificulten la lectura) y fijar los límites de la escala entre -1 y 1 (`vmin=-1, vmax=1`) para interpretar fielmente las correlaciones inversas y directas.
+  * **Uso alternativo (1 numérica vs. 2 categóricas):** También permite cruzar una variable numérica frente a dos variables categóricas agrupadas previamente. Se recomienda que ambas variables categóricas tengan pocos valores únicos para que el gráfico sea legible.
+* **Correlograma (*Pairplot*):**
+  * **Función:** Genera una matriz de gráficos (`sns.pairplot()`) que cruza todas las variables numéricas de un dataset entre sí. Muestra gráficos de dispersión para cada par de variables y la distribución individual en la diagonal principal, permitiendo detectar correlaciones lineales de un vistazo.
+  * **Recomendación práctica:** **No** debe realizarse con demasiadas variables a la vez porque el gráfico pierde legibilidad; en datasets grandes se recomienda hacerlo por partes.
+
+
+
+
+
+<hr>
