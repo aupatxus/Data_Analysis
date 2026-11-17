@@ -4163,3 +4163,252 @@ Este enfoque permite comparar variables entre sí para descubrir relaciones, dif
 
 
 <hr>
+
+
+
+
+
+
+
+
+# Visualización de Datos con Plotly en Python
+
+El uso de la librería **Plotly** (y herramientas complementarias como `WordCloud`) para crear gráficos interactivos y con calidad de publicación en Python, basado en el análisis del conjunto de datos de rankings universitarios (`timesData.csv`).
+
+---
+
+## 1. Introducción a Plotly
+
+La librería gráfica **Plotly** para Python permite crear visualizaciones interactivas en línea con calidad de publicación. A diferencia de otras librerías estáticas, las figuras generadas permiten al usuario interactuar directamente en el navegador: pasar el cursor sobre los puntos para ver detalles, hacer zoom, desplazarse por los ejes y mostrar u ocultar series de datos haciendo clic en la leyenda.
+
+Entre los tipos de gráficos que se pueden construir se incluyen:
+* Gráficos de líneas (*Line plots*) y de dispersión (*Scatter plots*).
+* Gráficos de área (*Area charts*) y de barras (*Bar charts*).
+* Gráficos circulares (*Pie charts*) y de burbujas (*Bubble charts*).
+* Histogramas (*Histograms*) y diagramas de caja (*Box plots*).
+* Matrices de dispersión (*Scatter plot matrix*) y mapas de calor (*Heatmaps*).
+* Gráficos insertados (*Inset plots*), subgráficos múltiples (*Multiple subplots*) y gráficos en 3D.
+
+### Estructura Básica de un Gráfico en Plotly
+Para construir la mayoría de las visualizaciones utilizando el módulo `plotly.graph_objs` (importado comúnmente como `go`), se sigue una estructura estándar compuesta por los siguientes elementos:
+
+1. **Trazos (`traces`)**: Son los objetos que definen cada serie de datos a graficar (por ejemplo, `go.Scatter`, `go.Bar`, `go.Pie`, etc.). Contienen las coordenadas, el modo de visualización, colores y textos emergentes.
+2. **Datos (`data`)**: Es una lista de Python (`[trace1, trace2, ...]`) donde se agrupan todos los trazos que formarán parte de la misma figura.
+3. **Diseño (`layout`)**: Es un diccionario o un objeto `go.Layout` que controla la apariencia general del gráfico: título principal, configuración de los ejes (`xaxis`, `yaxis`), modo de agrupación, anotaciones, entre otros.
+4. **Figura (`fig`)**: Es el contenedor final (`go.Figure(data=data, layout=layout)`) que une los datos con el diseño.
+5. **Renderizado (`iplot()` / `fig.show()`)**: Función encargada de dibujar la figura interactiva en el entorno de trabajo (como Jupyter Notebook o Google Colab).
+
+---
+
+## 2. Carga de Datos y Explicación de Variables
+
+El análisis se desarrolla utilizando el archivo `timesData.csv`, el cual contiene **2,603 registros** y **14 características (columnas)** relacionadas con el ranking mundial de universidades entre los años 2011 y 2016:
+
+* **`world_rank`**: Posición de la universidad en el ranking mundial.
+* **`university_name`**: Nombre de la institución educativa.
+* **`country`**: País al que pertenece la universidad.
+* **`teaching`**: Puntuación obtenida en enseñanza (ambiente de aprendizaje).
+* **`international`**: Puntuación en perspectiva internacional (personal, estudiantes e investigación).
+* **`research`**: Puntuación en investigación (volumen, ingresos y reputación).
+* **`citations`**: Puntuación en citas (influencia de la investigación).
+* **`income`**: Puntuación en ingresos de la industria (transferencia de conocimiento).
+* **`total_score`**: Puntuación global total.
+* **`num_students`**: Número total de estudiantes.
+* **`student_staff_ratio`**: Proporción de estudiantes por cada miembro del personal académico.
+* **`international_students`**: Porcentaje de estudiantes internacionales.
+* **`female_male_ratio`**: Proporción entre estudiantes mujeres y hombres.
+* **`year`**: Año de evaluación del ranking.
+
+---
+
+## 3. Tipos de Gráficos y su Teoría
+
+### 3.1. Gráficos de Líneas (*Line Charts*)
+Se utilizan para visualizar tendencias o comparar métricas a lo largo de una secuencia ordenada (por ejemplo, comparar las citas y la enseñanza frente al ranking mundial de las 100 mejores universidades).
+
+* **Parámetros clave en `go.Scatter`**:
+  * `x`: Datos del eje horizontal.
+  * `y`: Datos del eje vertical.
+  * `mode`: Define el estilo del trazo. Puede ser `'lines'` (solo líneas), `'markers'` (solo puntos) o `'lines+markers'` (líneas con puntos marcados).
+  * `name`: Nombre de la serie que aparecerá en la leyenda.
+  * `marker`: Diccionario para personalizar los puntos/líneas, como `color` en formato `rgba(rojo, verde, azul, opacidad)`.
+  * `text`: Información adicional que se muestra al pasar el cursor (*hover*) sobre cada punto.
+* **Parámetros clave en `layout`**:
+  * `title`: Título principal del gráfico.
+  * `xaxis`: Diccionario con propiedades del eje X, como `title` (etiqueta del eje) y `ticklen` (longitud de las marcas de graduación).
+
+---
+
+### 3.2. Gráficos de Dispersión (*Scatter Charts*)
+Permiten observar la distribución y relación entre dos variables numéricas mediante puntos individuales (por ejemplo, citas frente al ranking mundial en los años 2014, 2015 y 2016).
+
+* **Configuración específica**:
+  * Utiliza `go.Scatter` con `mode = "markers"`.
+  * En `layout`, dentro de los diccionarios `xaxis` y `yaxis`, se puede configurar `zeroline = False` para ocultar la línea base del cero y limpiar visualmente el gráfico.
+
+---
+
+### 3.3. Gráficos de Barras (*Bar Charts*)
+Ideales para comparar cantidades discretas entre diferentes categorías (por ejemplo, comparar las puntuaciones de citas y enseñanza de las 3 mejores universidades en 2014).
+
+* **Sintaxis y parámetros en `go.Bar`**:
+  * Se pueden definir usando la clase `go.Bar(...)` o directamente mediante diccionarios de Python especificando `'type': 'bar'`.
+  * `x` e `y`: Categorías y valores respectivamente.
+  * `marker`: Permite definir el color de relleno (`color`) y el borde de cada barra mediante un subdiccionario `line = dict(color=..., width=...)`.
+* **Modos de visualización en `layout` (`barmode`)**:
+  * `'group'`: Coloca las barras de diferentes trazos una al lado de la otra para cada categoría.
+  * `'relative'` (o apilado): Apila las barras una encima de la otra para mostrar el acumulado.
+
+---
+
+### 3.4. Gráficos Circulares y de Dona (*Pie Charts*)
+Se emplean para representar proporciones o porcentajes de un todo (por ejemplo, la proporción de estudiantes entre las 7 mejores universidades en 2016).
+
+* **Parámetros principales**:
+  * `values`: Lista de valores numéricos que determinan el tamaño de cada sector.
+  * `labels`: Etiquetas correspondientes a cada sector.
+  * `hoverinfo`: Define qué datos se muestran al pasar el cursor (ej. `'label+percent+name'`).
+  * `hole`: Valor entre `0` y `1` que define el tamaño del agujero central; si es mayor a `0` (ej. `0.3`), transforma el gráfico circular en un **gráfico de dona**.
+  * `domain`: Controla el área que ocupa el gráfico dentro del lienzo.
+  * `annotations` (en `layout`): Lista de diccionarios para añadir textos personalizados en coordenadas específicas (`x`, `y`), con control de fuente (`font`) y flechas (`showarrow`).
+
+---
+
+### 3.5. Gráficos de Burbujas (*Bubble Charts*)
+Es una extensión del gráfico de dispersión que permite visualizar **hasta cuatro dimensiones** de datos simultáneamente en un plano 2D:
+
+1. **Primera dimensión (`x`)**: Posición en el eje horizontal.
+2. **Segunda dimensión (`y`)**: Posición en el eje vertical.
+3. **Tercera dimensión (`marker.color`)**: Representada mediante una escala de colores (ej. puntuación internacional). Se activa la barra de referencia con `'showscale': True`.
+4. **Cuarta dimensión (`marker.size`)**: Representada por el tamaño/diámetro de cada burbuja (ej. número de estudiantes).
+
+---
+
+### 3.6. Histogramas (*Histograms*)
+Muestran la distribución de frecuencias de una variable numérica continua, permitiendo comparar cómo se distribuyen los datos en distintos periodos (ej. proporción estudiante-profesor en 2011, 2012 y 2013).
+
+* **Parámetros clave**:
+  * `go.Histogram`: Solo requiere definir el eje `x` con los datos a agrupar.
+  * `opacity`: Controla la transparencia de las barras (ej. `0.9`), fundamental cuando se superponen múltiples histogramas.
+  * `barmode` (en `layout`): Puede ser `'overlay'` (superpuesto, para ver dónde coinciden las distribuciones) o `'stack'` (apilado).
+
+---
+
+### 3.7. Nube de Palabras (*Word Cloud*)
+Aunque no pertenece nativamente a Plotly (se implementa con las librerías `wordcloud` y `matplotlib`), es una herramienta visual muy útil para analizar frecuencias de texto (ej. identificar qué países aparecen con mayor frecuencia en el ranking de 2011).
+
+* **Funcionamiento**:
+  * `WordCloud(background_color='white', width=..., height=...)`: Configura el lienzo de la nube.
+  * `.generate(" ".join(lista_textos))`: Procesa una cadena de texto unificada y asigna un tamaño de fuente proporcional a la frecuencia de aparición de cada palabra.
+
+---
+
+
+
+### 3.8. Diagramas de Caja (*Box Plots*)
+Los diagramas de caja son una herramienta estadística esencial para visualizar la distribución, dispersión, simetría y detección de valores atípicos de un conjunto de datos numéricos (por ejemplo, comparar la puntuación total y la puntuación de investigación de las universidades en el año 2015).
+
+* **Conceptos estadísticos fundamentales representados**:
+  * **Mediana (Percentil 50)**: Es el valor central del conjunto de datos una vez ordenado. Divide la muestra en dos mitades exactas, indicando que el 50% de los datos son menores o iguales a este valor.
+  * **Primer Cuartil (Q₁ - Percentil 25)**: Conocido como cuartil inferior, marca el punto donde el 25% de los datos se encuentran por debajo de este valor.
+  * **Tercer Cuartil (Q₃ - Percentil 75)**: Conocido como cuartil superior, indica que el 75% de los datos se encuentran por debajo de este valor.
+  * **Rango Intercuartílico (IQR)**: Representa la altura de la caja central y mide la dispersión del 50% central de los datos. Se calcula mediante la fórmula:
+    \[IQR = Q_3 - Q_1\]
+
+  * **Bigotes (*Whiskers*)**: Son las líneas que se extienden desde los bordes de la caja (Q₁ y Q₃) hasta una distancia máxima de 1.5 × IQR para delimitar el rango normal de los datos.
+  * **Valores Atípicos (*Outliers*)**: Son observaciones individuales que caen más allá de los límites establecidos por los bigotes (es decir, a una distancia superior a 1.5 × IQR).
+* **Parámetros clave en `go.Box`**:
+  * `y`: Serie de datos numéricos que se desea analizar.
+  * `name`: Etiqueta identificativa de la caja en el eje y la leyenda.
+  * `marker`: Diccionario para personalizar el color de la caja y sus puntos atípicos.
+
+---
+
+### 3.9. Matriz de Dispersión (*Scatter Matrix Plots*)
+Una matriz de dispersión permite analizar simultáneamente la covarianza y las relaciones de correlación entre **más de dos variables** numéricas (por ejemplo, evaluar la relación conjunta entre `research`, `international` y `total_score` en 2015).
+
+* **Preprocesamiento previo**: Antes de generar la matriz, es necesario limpiar valores no numéricos (como reemplazar guiones `'-'` por `'0'`) y convertir las columnas al tipo flotante (`float`).
+* **Implementación mediante `plotly.figure_factory` (`ff`)**:
+  * Función principal: `ff.create_scatterplotmatrix(dataframe, ...)`.
+  * `diag`: Define el tipo de gráfico que se mostrará en la diagonal principal de la matriz para cada variable individual (por ejemplo, `'box'` para diagramas de caja, histogramas o curvas de densidad).
+  * `index`: Columna de referencia (como un índice de ranking) utilizada para mapear el degradado de color de los puntos.
+  * `colormap`: Define la paleta o mapa de colores aplicado a los datos (por ejemplo, `'Portland'`).
+  * `colormap_type`: Especifica cómo se interpreta el mapa de colores (categórica o continua).
+  * `height` y `width`: Definen el alto y ancho total de la matriz en píxeles (ej. `700` x `700`).
+
+---
+
+### 3.10. Gráficos Insertados (*Inset Plots*)
+Un gráfico insertado consiste en colocar dos gráficos dentro de un mismo marco: un gráfico principal que ocupa todo el lienzo y un gráfico secundario más pequeño incrustado en una zona específica (por ejemplo, visualizar la puntuación de enseñanza frente al ranking mundial como gráfico principal, e insertar los ingresos frente al ranking en la esquina superior derecha).
+
+* **Configuración de ejes y dominios**:
+  * El primer trazo (`trace1`) utiliza por defecto los ejes principales (`x` e `y`).
+  * Al segundo trazo (`trace2`) se le asignan ejes secundarios explícitos: `xaxis='x2'` y `yaxis='y2'`.
+  * En `go.Layout`, se configuran `xaxis2` y `yaxis2` utilizando la propiedad `domain` (una lista `[inicio, fin]` con proporciones entre `0` y `1`, como `[0.6, 0.95]`) y `anchor` (`anchor='y2'`, `anchor='x2'`) para delimitar el recuadro exacto donde aparecerá el gráfico insertado.
+
+---
+
+### 3.11. Gráficos de Dispersión 3D con Escala de Color (*3D Scatter Plot with Colorscaling*)
+Cuando dos dimensiones no bastan para comprender la estructura o patrones ocultos de un conjunto de datos, añadir una tercera dimensión espacial mejora significativamente la inteligibilidad. Además, al incorporar una escala de color, es posible representar **hasta cuatro dimensiones** en una sola visualización interactiva.
+
+* **Parámetros clave en `go.Scatter3d`**:
+  * `x`, `y`, `z`: Definen las tres coordenadas espaciales de cada punto (por ejemplo, `world_rank`, `research` y `citations`).
+  * `mode`: Se establece en `'markers'` para representar cada registro como un punto en el espacio tridimensional.
+  * `marker`: Diccionario donde se configura el tamaño del punto (`size`), el color (`color`) y la escala de colores (`colorscale`), que actúa como la cuarta dimensión visual.
+
+---
+
+### 3.12. Subgráficos Múltiples (*Multiple Subplots*)
+Los subgráficos múltiples permiten dividir el área de dibujo en varias secciones independientes para comparar diferentes variables de forma paralela dentro de una misma figura (por ejemplo, comparar `research`, `citations`, `income` y `total_score` frente al `world_rank` en una cuadrícula de 2 × 2).
+
+* **Configuración de cuadrícula mediante dominios**:
+  * Cada trazo (`trace1`, `trace2`, `trace3`, `trace4`) se vincula a su propio par de ejes (`x1`/`y1`, `x2`/`y2`, `x3`/`y3`, `x4`/`y4`).
+  * En `go.Layout`, se define el espacio de cada cuadrante mediante `domain`:
+    * **Columna izquierda (`xaxis`, `xaxis3`)**: `domain=[0, 0.45]` (ocupa del 0% al 45% del ancho).
+    * **Columna derecha (`xaxis2`, `xaxis4`)**: `domain=[0.55, 1]` (ocupa del 55% al 100% del ancho, dejando un 10% de separación central).
+    * **Fila inferior (`yaxis`, `yaxis2`)**: `domain=[0, 0.45]` (ocupa del 0% al 45% de la altura).
+    * **Fila superior (`yaxis3`, `yaxis4`)**: `domain=[0.55, 1]` (ocupa del 55% al 100% de la altura).
+  * Cada eje se enlaza con su perpendicular mediante la propiedad `anchor` (ej. `anchor='y1'`, `anchor='x1'`).
+
+---
+
+### 3.13. Mapas Geográficos (*Scatter Geo* con `Plotly Express`)
+Como complemento a `graph_objs`, se introduce `plotly.express` (`px`), una interfaz de alto nivel que permite construir gráficos complejos de manera más concisa.
+
+* **Implementación con `px.scatter_geo`**:
+  * Permite proyectar datos sobre un mapa mundial utilizando códigos de país estándar.
+  * `locations`: Columna con los códigos ISO de tres letras de cada país (`iso_alpha`).
+  * `color`: Variable categórica que agrupa y colorea los puntos (ej. `continent`).
+  * `hover_name`: Columna que muestra el nombre principal al pasar el cursor (ej. `country`).
+  * `size`: Variable numérica que ajusta proporcionalmente el área de cada marcador en el mapa (ej. población `pop`).
+  * `projection`: Tipo de proyección cartográfica utilizada para dibujar el globo (ej. `"natural earth"`).
+
+---
+
+## 4. Exportación de Gráficos a HTML
+
+Las figuras generadas con Plotly mantienen toda su interactividad cuando se visualizan en un navegador web: permiten inspeccionar valores al pasar el cursor (*hover*), hacer zoom, desplazarse por los ejes (*pan*) y activar o desactivar trazos haciendo clic o doble clic en la leyenda.
+
+* **Opciones de exportación**:
+  * **Formatos estáticos**: Es posible guardar los gráficos como imágenes tradicionales en formato `PNG`, `JPEG`, `SVG` o `PDF`.
+  * **Formato interactivo (`HTML`)**: Exportar la figura a un archivo `.html` independiente permite compartirla y abrirla en cualquier navegador web conservando todas sus funciones interactivas sin necesidad de ejecutar código Python.
+* **Sintaxis de exportación**:
+  ```python
+  # Exporta el último objeto figura (fig) ejecutado a un archivo HTML interactivo
+  fig.write_html("4 charts in one.html")
+  ```
+
+
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
