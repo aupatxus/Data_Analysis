@@ -4412,3 +4412,2248 @@ Las figuras generadas con Plotly mantienen toda su interactividad cuando se visu
 
 
 
+
+
+
+
+
+
+
+# Python Interactive Maps with Folium
+
+# 1. Introducción a Folium
+
+## ¿Qué es Folium?
+
+**Folium** es una librería de Python que permite crear mapas interactivos mediante la integración de datos geográficos con mapas basados en Leaflet.js.
+
+Su principal utilidad es representar información geográfica de manera visual e interactiva, permitiendo añadir diferentes elementos a los mapas, como:
+
+- Marcadores de ubicaciones.
+- Círculos y áreas geográficas.
+- Rutas entre diferentes puntos.
+- Capas geográficas GeoJSON.
+- Mapas coropléticos (Choropleth Maps).
+- Mapas de calor (Heat Maps).
+- Controles de navegación y medición.
+- Imágenes superpuestas sobre mapas.
+- Herramientas para dibujar elementos geográficos.
+
+Folium es similar a `ipyleaflet`, aunque ambas librerías presentan diferencias en funcionalidad y sintaxis.
+
+La principal ventaja de Folium es que permite generar mapas interactivos directamente desde Python y exportarlos como archivos HTML independientes.
+
+## Instalación
+
+Para instalar Folium:
+
+```bash
+pip install folium
+```
+
+También se pueden instalar las librerías auxiliares utilizadas en el notebook:
+
+```bash
+pip install geocoder
+pip install numpy
+pip install pandas
+pip install vega_datasets
+```
+
+## Librerías utilizadas
+
+```python
+import folium
+from folium import plugins
+import geocoder
+import numpy as np
+import pandas as pd
+from vega_datasets import data as vds
+```
+
+### Descripción de las librerías
+
+| Librería | Utilidad |
+|---|---|
+| `folium` | Creación y personalización de mapas interactivos. |
+| `folium.plugins` | Herramientas adicionales para ampliar las funcionalidades de los mapas. |
+| `geocoder` | Obtención de coordenadas geográficas a partir de direcciones y nombres de lugares. |
+| `numpy` | Generación y manipulación de datos numéricos y coordenadas. |
+| `pandas` | Manipulación de datos tabulares mediante DataFrames. |
+| `vega_datasets` | Acceso a conjuntos de datos de ejemplo, como información de aeropuertos. |
+
+---
+
+# 2. Creación de mapas básicos (Basic Maps)
+
+La creación de un mapa es el primer paso para trabajar con Folium.
+
+La función principal es:
+
+```python
+folium.Map()
+```
+
+Esta función permite inicializar un mapa interactivo.
+
+Si no se especifican parámetros, Folium genera un mapa con sus valores predeterminados.
+
+## Parámetros principales de folium.Map()
+
+Los parámetros más importantes utilizados en el notebook son:
+
+- `location`: coordenadas geográficas del centro del mapa.
+- `zoom_start`: nivel de zoom inicial.
+- `width`: anchura del mapa.
+- `height`: altura del mapa.
+- `control_scale`: permite mostrar una escala de distancias en el mapa.
+- `tiles`: permite seleccionar el tipo de mapa o cartografía de fondo.
+
+### Coordenadas geográficas
+
+Las coordenadas se proporcionan mediante una lista con dos valores:
+
+```python
+location=[latitude, longitude]
+```
+
+Donde:
+
+- `latitude`: latitud.
+- `longitude`: longitud.
+
+Es importante mantener este orden: primero latitud y después longitud.
+
+### Ejemplo de creación de un mapa
+
+```python
+map1 = folium.Map(
+    location=[43.2628099, -2.9369318],
+    zoom_start=14,
+    control_scale=True
+)
+
+map1
+```
+
+En este ejemplo:
+
+- El mapa se centra en unas coordenadas geográficas concretas.
+- `zoom_start=14` establece el nivel de ampliación inicial.
+- `control_scale=True` muestra una escala de referencia.
+
+Los parámetros `width` y `height` también pueden utilizarse para establecer las dimensiones del mapa.
+
+```python
+map1 = folium.Map(
+    location=[43.2628099, -2.9369318],
+    zoom_start=14,
+    width=700,
+    height=500
+)
+```
+
+---
+
+# 3. Guardar mapas (Save Map)
+
+Folium permite exportar los mapas creados a archivos HTML.
+
+Esto resulta especialmente útil porque permite visualizar los mapas fuera del entorno de Python, utilizando cualquier navegador web compatible.
+
+Para guardar un mapa se utiliza el método:
+
+```python
+map.save('nombre_archivo.html')
+```
+
+### Ejemplo
+
+```python
+map1.save('map1.html')
+```
+
+El resultado es un archivo HTML que contiene el mapa interactivo.
+
+**Ventajas de exportar a HTML:**
+
+- Permite compartir mapas con otras personas.
+- No requiere ejecutar nuevamente el código Python para visualizar el resultado.
+- Facilita la integración de mapas en páginas web.
+- Conserva las funcionalidades interactivas del mapa.
+
+---
+
+# 4. Tipos de mapas y capas cartográficas (Map Types)
+
+Folium permite utilizar diferentes proveedores y estilos cartográficos para representar la información geográfica.
+
+Estos estilos se conocen como *tiles* o capas cartográficas.
+
+Cada tipo de mapa ofrece una representación visual diferente del territorio.
+
+## Tipos de mapas utilizados
+
+En el notebook aparecen los siguientes tipos:
+
+| Tipo de mapa | Descripción |
+|---|---|
+| `OpenStreetMap` | Cartografía general con información de calles, ciudades y elementos geográficos. |
+| `Stamen Terrain` | Representación del relieve y características físicas del terreno. |
+| `Stamen Toner` | Estilo monocromático de alto contraste. |
+| `Stamen Watercolor` | Representación cartográfica con apariencia de acuarela. |
+| `CartoDB Positron` | Estilo claro y minimalista. |
+| `CartoDB Dark_Matter` | Estilo oscuro, útil para determinadas visualizaciones. |
+
+## Añadir diferentes capas al mapa
+
+Para incorporar diferentes tipos de mapas se utiliza:
+
+```python
+folium.raster_layers.TileLayer()
+```
+
+### Ejemplo
+
+```python
+map_layer_control = folium.Map(
+    location=[40.416719, -3.684016],
+    zoom_start=12
+)
+
+folium.raster_layers.TileLayer(
+    'Open Street Map'
+).add_to(map_layer_control)
+
+folium.raster_layers.TileLayer(
+    'Stamen Terrain'
+).add_to(map_layer_control)
+
+folium.raster_layers.TileLayer(
+    'Stamen Toner'
+).add_to(map_layer_control)
+
+folium.raster_layers.TileLayer(
+    'Stamen Watercolor'
+).add_to(map_layer_control)
+
+folium.raster_layers.TileLayer(
+    'CartoDB Positron'
+).add_to(map_layer_control)
+
+folium.raster_layers.TileLayer(
+    'CartoDB Dark_Matter'
+).add_to(map_layer_control)
+```
+
+## Control de capas (LayerControl)
+
+Cuando un mapa contiene varias capas, es posible incorporar un control que permita al usuario activar o desactivar las diferentes representaciones cartográficas.
+
+Para ello se utiliza:
+
+```python
+folium.LayerControl().add_to(map_layer_control)
+```
+
+El control permite cambiar entre los diferentes estilos de mapa sin necesidad de generar un mapa nuevo.
+
+---
+
+# 5. Herramientas adicionales: MiniMap y Fullscreen
+
+Folium incorpora plugins que amplían las funcionalidades de los mapas.
+
+Dos de ellos son `MiniMap` y `Fullscreen`.
+
+## MiniMap
+
+El plugin `MiniMap` permite incorporar un pequeño mapa de referencia dentro del mapa principal.
+
+Su utilidad es facilitar la orientación espacial y proporcionar una visión general del área representada.
+
+### Ejemplo
+
+```python
+map_with_mini = folium.Map(
+    location=[40.416719, -3.684016],
+    zoom_start=7
+)
+
+minimap = plugins.MiniMap(
+    toggle_display=True
+)
+
+map_with_mini.add_child(minimap)
+```
+
+El parámetro:
+
+- `toggle_display=True`: permite mostrar u ocultar el minimapa mediante un control.
+
+## Fullscreen
+
+El plugin `Fullscreen` permite visualizar el mapa ocupando toda la pantalla.
+
+### Ejemplo
+
+```python
+plugins.Fullscreen(
+    position='topright'
+).add_to(map_with_mini)
+```
+
+El parámetro `position` permite establecer la ubicación del control.
+
+En el ejemplo se coloca en la esquina superior derecha.
+
+---
+
+# 6. Marcadores geográficos (Markers)
+
+Los marcadores permiten identificar ubicaciones concretas sobre un mapa.
+
+Se utilizan para representar ciudades, edificios, aeropuertos, hospitales, puntos de interés o cualquier otra localización geográfica.
+
+La clase principal es:
+
+```python
+folium.Marker()
+```
+
+## Parámetros principales
+
+| Parámetro | Descripción |
+|---|---|
+| `location` | Coordenadas geográficas del marcador. |
+| `popup` | Información que aparece al hacer clic sobre el marcador. |
+| `tooltip` | Información que aparece al situar el cursor sobre el marcador. |
+| `icon` | Permite personalizar el icono del marcador. |
+
+### Ejemplo básico
+
+```python
+folium.Marker(
+    location=[40.416719, -3.684016],
+    popup='Madrid',
+    tooltip='Haz clic'
+).add_to(map1)
+```
+
+El marcador se incorpora al mapa mediante:
+
+```python
+.add_to(map1)
+```
+
+## 6.1. Obtener coordenadas mediante geocodificación (Geocoding)
+
+La geocodificación consiste en transformar una dirección o un nombre de lugar en coordenadas geográficas.
+
+En el notebook se utiliza la librería `geocoder` junto con OpenStreetMap.
+
+La función utilizada es:
+
+```python
+geocoder.osm()
+```
+
+### Ejemplo
+
+```python
+import geocoder
+
+place = 'Madrid, Hospital Ramon y Cajal'
+
+address = geocoder.osm(place)
+
+print(address)
+```
+
+El resultado contiene información geográfica del lugar buscado.
+
+Entre los datos más importantes se encuentran:
+
+- `address.lat`: latitud.
+- `address.lng`: longitud.
+
+Para obtener ambas coordenadas:
+
+```python
+address_latlng = [
+    address.lat,
+    address.lng
+]
+```
+
+### Crear un marcador utilizando geocodificación
+
+```python
+place = 'Zaragoza'
+
+address = geocoder.osm(place)
+
+address_latlng = [
+    address.lat,
+    address.lng
+]
+
+map_madrid = folium.Map(
+    location=[address.lat, address.lng],
+    zoom_start=12
+)
+
+folium.Marker(
+    address_latlng,
+    popup=place,
+    tooltip='click'
+).add_to(map_madrid)
+
+display(map_madrid)
+```
+
+**Concepto importante:** la geocodificación permite trabajar con direcciones y nombres de lugares sin tener que conocer previamente sus coordenadas geográficas.
+
+---
+
+# 7. Añadir múltiples marcadores utilizando DataFrames
+
+Cuando se trabaja con numerosos puntos geográficos, no resulta práctico crear cada marcador individualmente.
+
+Folium permite automatizar este proceso mediante estructuras de datos de Pandas.
+
+En el notebook se utilizan dos procedimientos:
+
+1. Recorrer un DataFrame mediante `iterrows()`.
+2. Aplicar una función a todas las filas mediante `apply()`.
+
+## 7.1. Obtener datos de aeropuertos
+
+Se utiliza el conjunto de datos de aeropuertos disponible en `vega_datasets`.
+
+```python
+airports = vds.airports()
+
+airports = airports[:25]
+
+airports.head()
+```
+
+Este DataFrame contiene información de diferentes aeropuertos, incluyendo sus coordenadas geográficas y nombres.
+
+Entre las columnas utilizadas destacan:
+
+- `latitude`: latitud.
+- `longitude`: longitud.
+- `name`: nombre del aeropuerto.
+- `city`: ciudad.
+
+## 7.2. Utilizar iterrows()
+
+El método `iterrows()` permite recorrer un DataFrame fila por fila.
+
+Cada iteración proporciona el índice y los datos correspondientes a una fila.
+
+### Ejemplo
+
+```python
+map_airports = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+for (index, row) in airports.iterrows():
+
+    folium.Marker(
+        location=[
+            row.loc['latitude'],
+            row.loc['longitude']
+        ],
+        popup=row.loc['name'] + ' ' + row['city'],
+        tooltip='click'
+    ).add_to(map_airports)
+
+map_airports
+```
+
+En cada iteración:
+
+1. Se obtiene una fila del DataFrame.
+2. Se extraen la latitud y la longitud.
+3. Se crea un marcador.
+4. Se incorpora el nombre del aeropuerto y su ciudad al popup.
+5. Se añade el marcador al mapa.
+
+## 7.3. Utilizar apply()
+
+Otra alternativa es emplear el método `apply()` de Pandas.
+
+Este método permite aplicar una función a cada fila o columna de un DataFrame.
+
+Cuando se utiliza:
+
+```python
+axis=1
+```
+
+La función se aplica fila por fila.
+
+### Ejemplo
+
+```python
+map_airports2 = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+airports.apply(
+    lambda row: folium.Marker(
+        location=[
+            row['latitude'],
+            row['longitude']
+        ],
+        popup=row.loc['name'] + ' ' + row['city']
+    ).add_to(map_airports2),
+    axis=1
+)
+
+map_airports2
+```
+
+**Concepto importante:** tanto `iterrows()` como `apply()` permiten automatizar la creación de marcadores utilizando información almacenada en DataFrames.
+
+---
+
+# 8. Múltiples marcadores utilizando diccionarios
+
+Otra forma de almacenar coordenadas geográficas es mediante diccionarios de Python.
+
+En este caso, las claves representan los nombres de las ubicaciones y los valores contienen sus coordenadas.
+
+### Ejemplo de diccionario
+
+```python
+markers_dict = {
+    'Los Angeles': [34.041008, -118.246653],
+    'Las Vegas': [36.169726, -115.143996],
+    'Denver': [39.739448, -104.992450],
+    'Chicago': [41.878765, -87.643267],
+    'Manhattan': [40.782949, -73.969559]
+}
+```
+
+Para recorrer el diccionario se puede utilizar:
+
+```python
+for elemento in markers_dict.items():
+    print(elemento)
+```
+
+El método `items()` devuelve pares formados por:
+
+- La clave: nombre de la ciudad.
+- El valor: coordenadas geográficas.
+
+## Crear múltiples marcadores desde un diccionario
+
+```python
+map_cities = folium.Map(
+    location=[41, -99],
+    zoom_start=4
+)
+
+for i in markers_dict.items():
+
+    folium.Marker(
+        location=i[1],
+        popup=i[0]
+    ).add_to(map_cities)
+
+map_cities
+```
+
+En este ejemplo:
+
+- `i[0]` contiene el nombre de la ciudad.
+- `i[1]` contiene las coordenadas.
+
+**Concepto importante:** los diccionarios permiten relacionar directamente cada ubicación con sus coordenadas, facilitando la creación de múltiples marcadores.
+
+---
+
+# 9. Marcadores personalizados (Custom Markers)
+
+Folium permite modificar la apariencia de los marcadores mediante iconos personalizados.
+
+Para ello se utiliza la clase:
+
+```python
+folium.Icon()
+```
+
+Se pueden personalizar aspectos como:
+
+- El color del marcador.
+- El icono que aparece en su interior.
+- La biblioteca de iconos utilizada.
+
+En el notebook se utilizan dos familias de iconos:
+
+1. Font Awesome (`fa`).
+2. Glyphicons (`glyphicon`).
+
+## 9.1. Utilizar Font Awesome
+
+Font Awesome proporciona una colección de iconos que pueden utilizarse para representar diferentes elementos.
+
+Para especificar un icono de esta biblioteca se utiliza:
+
+```python
+folium.Icon(
+    color='green',
+    icon='bolt',
+    prefix='fa'
+)
+```
+
+### Ejemplo completo
+
+```python
+map_cm_fa = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+folium.Marker(
+    location=[38, -98],
+    popup='popup',
+    icon=folium.Icon(
+        color='green',
+        icon='bolt',
+        prefix='fa'
+    )
+).add_to(map_cm_fa)
+
+map_cm_fa
+```
+
+## 9.2. Utilizar Glyphicons
+
+Otra posibilidad es utilizar iconos de Bootstrap mediante Glyphicons.
+
+En este caso se especifica:
+
+```python
+prefix='glyphicon'
+```
+
+### Ejemplo
+
+```python
+map_cm_glyphicon = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+folium.Marker(
+    location=[38, -98],
+    popup='popup',
+    icon=folium.Icon(
+        icon='glyphicon-plane',
+        prefix='glyphicon'
+    )
+).add_to(map_cm_glyphicon)
+
+map_cm_glyphicon
+```
+
+## 9.3. Múltiples marcadores personalizados desde un DataFrame
+
+Es posible almacenar el nombre del icono correspondiente a cada ubicación dentro de un DataFrame.
+
+### Crear el DataFrame
+
+```python
+cm_df = pd.DataFrame({
+    'city': [
+        'Los Angeles',
+        'Las Vegas',
+        'Denver',
+        'Chicago',
+        'Manhattan'
+    ],
+    'latitude': [
+        34.041008,
+        36.169726,
+        39.739448,
+        41.878765,
+        40.782949
+    ],
+    'longitude': [
+        -118.246653,
+        -115.143996,
+        -104.992450,
+        -87.643267,
+        -73.969559
+    ],
+    'icon': [
+        'bicycle',
+        'car',
+        'bus',
+        'truck',
+        'motorcycle'
+    ]
+})
+```
+
+### Añadir los marcadores
+
+Para recorrer el DataFrame se utiliza `itertuples()`.
+
+Este método permite acceder a los valores de cada fila mediante atributos.
+
+```python
+map_cm_multiple = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+for i in cm_df.itertuples():
+
+    folium.Marker(
+        location=[
+            i.latitude,
+            i.longitude
+        ],
+        popup=i.city,
+        icon=folium.Icon(
+            icon=i.icon,
+            prefix='fa'
+        )
+    ).add_to(map_cm_multiple)
+
+map_cm_multiple
+```
+
+En este caso, cada ubicación tiene un icono diferente.
+
+**Concepto importante:** los iconos personalizados permiten diferenciar visualmente categorías de ubicaciones y facilitan la interpretación del mapa.
+
+## 9.4. Marcadores numerados con BeautifyIcon
+
+Folium también permite crear marcadores numerados utilizando:
+
+```python
+plugins.BeautifyIcon()
+```
+
+Este plugin permite personalizar los marcadores mediante números y propiedades visuales.
+
+Entre sus parámetros destacan:
+
+- `number`: número que aparece en el marcador.
+- `border_color`: color del borde.
+- `border_width`: grosor del borde.
+- `text_color`: color del texto.
+- `inner_icon_style`: estilos CSS aplicados al icono interior.
+
+### Ejemplo
+
+```python
+cm_enum_df = pd.DataFrame({
+    'city': [
+        'Los Angeles',
+        'Las Vegas',
+        'Denver',
+        'Chicago',
+        'Manhattan'
+    ],
+    'latitude': [
+        34.041008,
+        36.169726,
+        39.739448,
+        41.878765,
+        40.782949
+    ],
+    'longitude': [
+        -118.246653,
+        -115.143996,
+        -104.992450,
+        -87.643267,
+        -73.969559
+    ],
+    'icon_num': [1, 2, 3, 4, 5]
+})
+```
+
+```python
+map_enum_icons = folium.Map(
+    [38, -98],
+    zoom_start=4
+)
+
+for i in cm_enum_df.itertuples():
+
+    folium.Marker(
+        location=[
+            i.latitude,
+            i.longitude
+        ],
+        popup=i.city,
+        icon=plugins.BeautifyIcon(
+            number=i.icon_num,
+            border_color='blue',
+            border_width=1,
+            text_color='red',
+            inner_icon_style='margin-top:0px;'
+        )
+    ).add_to(map_enum_icons)
+
+map_enum_icons
+```
+
+Este tipo de marcador resulta útil cuando se necesita identificar puntos mediante una numeración.
+
+---
+
+# 10. Marcadores circulares (Circle Markers)
+
+Además de los marcadores convencionales, Folium permite representar ubicaciones mediante círculos.
+
+Existen dos clases principales:
+
+- `folium.Circle()`
+- `folium.CircleMarker()`
+
+Aunque visualmente pueden parecer similares, presentan una diferencia importante: la forma en la que se define su tamaño.
+
+## 10.1. folium.Circle()
+
+La clase `Circle` crea un círculo cuyo radio se especifica en metros.
+
+### Parámetros
+
+| Parámetro | Descripción |
+|---|---|
+| `location` | Coordenadas del centro del círculo. |
+| `radius` | Radio del círculo en metros. |
+| `color` | Color del borde. |
+
+### Ejemplo
+
+```python
+folium.Circle(
+    radius=100000,
+    location=[38, -98],
+    color='green'
+).add_to(map_circle)
+```
+
+En este ejemplo, el círculo tiene un radio de 100.000 metros.
+
+## 10.2. folium.CircleMarker()
+
+La clase `CircleMarker` crea un círculo cuyo radio se especifica en píxeles.
+
+### Parámetros
+
+| Parámetro | Descripción |
+|---|---|
+| `location` | Coordenadas del centro. |
+| `radius` | Radio en píxeles. |
+| `color` | Color del borde. |
+| `fill_color` | Color de relleno. |
+
+### Ejemplo
+
+```python
+folium.CircleMarker(
+    location=[39, -105],
+    radius=25,
+    color='blue',
+    fill_color='yellow'
+).add_to(map_circle)
+```
+
+## Diferencia entre Circle y CircleMarker
+
+| Característica | Circle | CircleMarker |
+|---|---|---|
+| Tamaño | Metros | Píxeles |
+| Referencia | Distancia geográfica | Tamaño visual |
+| Uso | Representar áreas geográficas | Destacar puntos |
+
+**Concepto importante:** el radio de `Circle` representa una distancia real sobre el territorio, mientras que el radio de `CircleMarker` representa un tamaño visual en pantalla.
+
+---
+
+# 11. Representación de rutas (Plot Route)
+
+Folium permite representar recorridos entre diferentes ubicaciones mediante líneas que conectan una serie de coordenadas geográficas.
+
+Para ello se utiliza:
+
+```python
+folium.PolyLine()
+```
+
+Esta clase permite dibujar una línea que conecta varios puntos siguiendo el orden de las coordenadas proporcionadas.
+
+## Estructura de las coordenadas
+
+Las coordenadas se almacenan en una lista de listas o en una lista de tuplas.
+
+Cada elemento contiene:
+
+```python
+[latitude, longitude]
+```
+
+### Ejemplo de ruta
+
+```python
+route_lats_longs = [
+    [34.041008, -118.246653],
+    [36.169726, -115.143996],
+    [39.739448, -104.992450],
+    [41.878765, -87.643267],
+    [40.782949, -73.969559]
+]
+```
+
+## Dibujar la ruta con PolyLine
+
+```python
+map_plot_route = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+folium.PolyLine(
+    route_lats_longs
+).add_to(map_plot_route)
+
+map_plot_route
+```
+
+La línea conecta los puntos en el orden en el que aparecen en la lista.
+
+**Importante:** `PolyLine` representa una conexión visual entre coordenadas. No calcula automáticamente la ruta real por carreteras ni determina el recorrido óptimo.
+
+## 11.1. Rutas animadas con AntPath
+
+Otra posibilidad es utilizar:
+
+```python
+plugins.AntPath()
+```
+
+Este plugin permite representar rutas mediante una línea animada con un efecto de movimiento.
+
+### Ejemplo
+
+```python
+map_ant_route = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+plugins.AntPath(
+    route_lats_longs
+).add_to(map_ant_route)
+
+map_ant_route
+```
+
+La principal diferencia es visual:
+
+- `PolyLine`: dibuja una línea convencional.
+- `AntPath`: representa una línea animada.
+
+---
+
+# 12. Incorporación de capas GeoJSON (Overlay GeoJSON Layers)
+
+GeoJSON es un formato basado en JSON que permite almacenar e intercambiar información geográfica.
+
+Es especialmente útil para representar elementos geográficos como:
+
+- Puntos.
+- Líneas.
+- Polígonos.
+- Multipolígonos.
+- Colecciones de diferentes elementos geográficos.
+
+Folium permite incorporar archivos GeoJSON directamente a un mapa mediante:
+
+```python
+folium.GeoJson()
+```
+
+## Fuentes de archivos GeoJSON
+
+En el notebook se mencionan diferentes formas de obtener estos archivos:
+
+- Utilizar archivos GeoJSON existentes.
+- Crear archivos personalizados mediante `geojson.io`.
+- Utilizar el plugin `Draw` de Folium para dibujar elementos y exportarlos.
+- Convertir archivos Shapefile a GeoJSON utilizando QGIS.
+
+## Añadir un archivo GeoJSON al mapa
+
+```python
+map_geojson = folium.Map(
+    location=[39.77, -86.15],
+    zoom_start=7
+)
+
+folium.GeoJson(
+    'data/indiana_outline_map.geojson',
+    name='geojson indiana'
+).add_to(map_geojson)
+
+folium.LayerControl().add_to(map_geojson)
+
+map_geojson
+```
+
+En este ejemplo:
+
+1. Se crea un mapa centrado en Indiana.
+2. Se carga un archivo GeoJSON.
+3. Se añade la información geográfica al mapa.
+4. Se incorpora un control de capas.
+
+El parámetro `name` permite identificar la capa dentro del control.
+
+**Concepto importante:** GeoJSON permite superponer información geográfica propia sobre un mapa base, facilitando la representación de límites territoriales y otras geometrías.
+
+---
+
+# 13. Subgrupos de capas GeoJSON (Subgroups with GeoJSON)
+
+Cuando se trabaja con diferentes conjuntos de información geográfica, puede resultar interesante agruparlos en categorías.
+
+Folium permite organizar capas mediante:
+
+- `FeatureGroup`.
+- `FeatureGroupSubGroup`.
+
+## FeatureGroup
+
+La clase `FeatureGroup` permite agrupar diferentes elementos geográficos dentro de una misma capa.
+
+### Ejemplo
+
+```python
+all_subgroups = folium.FeatureGroup(
+    name='all sales regions'
+)
+
+map_with_subgroups.add_child(all_subgroups)
+```
+
+En este caso se crea un grupo principal llamado `all sales regions`.
+
+## FeatureGroupSubGroup
+
+La clase `FeatureGroupSubGroup` permite crear subgrupos dentro de un grupo principal.
+
+### Ejemplo completo
+
+```python
+map_with_subgroups = folium.Map(
+    location=[39.77, -86.15],
+    zoom_start=7
+)
+
+# Grupo principal
+all_subgroups = folium.FeatureGroup(
+    name='all sales regions'
+)
+
+map_with_subgroups.add_child(all_subgroups)
+
+# Subgrupo 1
+sales_region1 = plugins.FeatureGroupSubGroup(
+    all_subgroups,
+    'sales region 1'
+)
+
+map_with_subgroups.add_child(sales_region1)
+
+# Subgrupo 2
+sales_region2 = plugins.FeatureGroupSubGroup(
+    all_subgroups,
+    'sales region 2'
+)
+
+map_with_subgroups.add_child(sales_region2)
+
+# Subgrupo 3
+sales_region3 = plugins.FeatureGroupSubGroup(
+    all_subgroups,
+    'sales region 3'
+)
+
+map_with_subgroups.add_child(sales_region3)
+
+# Incorporar archivos GeoJSON
+folium.GeoJson(
+    'data/sales_region1.geojson'
+).add_to(sales_region1)
+
+folium.GeoJson(
+    'data/sales_region2.geojson'
+).add_to(sales_region2)
+
+folium.GeoJson(
+    'data/sales_region3.geojson'
+).add_to(sales_region3)
+
+# Control de capas
+folium.LayerControl(
+    collapsed=False
+).add_to(map_with_subgroups)
+
+map_with_subgroups
+```
+
+## Utilidad de los subgrupos
+
+Esta estructura permite organizar información geográfica jerárquicamente.
+
+En el ejemplo se utiliza un grupo principal para las regiones comerciales y tres subgrupos correspondientes a diferentes regiones de ventas.
+
+El parámetro:
+
+```python
+collapsed=False
+```
+
+hace que el control de capas aparezca inicialmente desplegado.
+
+**Concepto importante:** `FeatureGroup` permite agrupar elementos y `FeatureGroupSubGroup` permite organizar esos elementos en subcategorías dentro de un grupo principal.
+
+---
+
+# 14. Mapas coropléticos (Choropleth Maps)
+
+Un mapa coroplético es una representación cartográfica en la que diferentes regiones geográficas aparecen coloreadas según el valor de una variable estadística.
+
+Se utiliza habitualmente para representar información agregada por territorios.
+
+Algunos ejemplos de variables que pueden representarse son:
+
+- Población.
+- Densidad de población.
+- Mortalidad.
+- Nivel de ingresos.
+- Porcentajes.
+- Indicadores económicos.
+- Datos demográficos.
+
+La intensidad o el color de cada región permite identificar visualmente diferencias entre territorios.
+
+## 14.1. Datos necesarios
+
+Para construir un mapa coroplético se necesitan dos fuentes de información:
+
+1. Un archivo GeoJSON con las geometrías de las regiones.
+2. Un conjunto de datos con los valores estadísticos asociados a esas regiones.
+
+En el notebook se utilizan:
+
+- `geojson_indianacounties.geojson`: geometrías de los condados de Indiana.
+- `indiana_population_by_county.csv`: población de cada condado.
+
+## 14.2. Cargar el archivo GeoJSON
+
+Los archivos GeoJSON pueden cargarse mediante la librería `json`.
+
+```python
+import json
+
+with open(
+    'data/geojson_indiana_counties.geojson'
+) as f:
+
+    geo_json_counties = json.load(f)
+```
+
+El contenido se almacena en un diccionario de Python.
+
+Una estructura GeoJSON de tipo FeatureCollection contiene diferentes elementos dentro de la clave:
+
+```python
+geo_json_counties['features']
+```
+
+Cada elemento de `features` representa una entidad geográfica.
+
+Dentro de cada entidad se encuentran:
+
+- `geometry`: geometría del elemento.
+- `properties`: propiedades o atributos asociados.
+- `id`: identificador de la entidad, cuando está definido.
+
+## 14.3. Crear identificadores para las regiones
+
+Para relacionar las geometrías del archivo GeoJSON con los datos estadísticos es necesario disponer de un identificador común.
+
+En el notebook se utiliza el nombre del condado:
+
+```python
+for i in geo_json_counties['features']:
+
+    i['id'] = i['properties']['NAME_L']
+```
+
+Esta operación crea una propiedad `id` para cada elemento geográfico.
+
+El identificador se obtiene de:
+
+```python
+i['properties']['NAME_L']
+```
+
+**Concepto importante:** el identificador permite relacionar cada región del archivo GeoJSON con su correspondiente registro en el DataFrame.
+
+## 14.4. Cargar los datos estadísticos
+
+Los datos de población se cargan mediante Pandas:
+
+```python
+pop_df = pd.read_csv(
+    'data/indiana_population_by_county.csv'
+)
+```
+
+El DataFrame contiene información de población asociada a cada condado.
+
+Para consultar un condado concreto:
+
+```python
+pop_df[
+    pop_df['County'] == 'Steuben'
+]
+```
+
+## 14.5. Crear el mapa coroplético
+
+La clase utilizada es:
+
+```python
+folium.Choropleth()
+```
+
+### Parámetros principales
+
+| Parámetro | Descripción |
+|---|---|
+| `geo_data` | Información geográfica del archivo GeoJSON. |
+| `name` | Nombre de la capa. |
+| `data` | DataFrame con los datos estadísticos. |
+| `columns` | Columnas que contienen los identificadores y los valores. |
+| `key_on` | Ruta dentro del GeoJSON utilizada para relacionar los datos. |
+| `fill_color` | Paleta de colores utilizada para rellenar las regiones. |
+| `fill_opacity` | Opacidad del relleno. |
+| `line_opacity` | Opacidad de las líneas que delimitan las regiones. |
+| `legend_name` | Título de la leyenda. |
+| `highlight` | Permite resaltar las regiones al interactuar con ellas. |
+
+### Ejemplo completo
+
+```python
+map_choropleth = folium.Map(
+    location=[39.77, -86.15],
+    zoom_start=7
+)
+
+folium.Choropleth(
+    geo_data=geo_json_counties,
+    name='choropleth',
+    data=pop_df,
+    columns=[
+        'County',
+        'Population'
+    ],
+    key_on='feature.id',
+    fill_color='YlGn',
+    fill_opacity=0.5,
+    line_opacity=0.5,
+    legend_name='Population',
+    highlight=True
+).add_to(map_choropleth)
+
+folium.LayerControl().add_to(map_choropleth)
+
+map_choropleth
+```
+
+## 14.6. Relación entre GeoJSON y DataFrame
+
+Uno de los elementos más importantes de un mapa coroplético es la relación entre las geometrías y los datos estadísticos.
+
+En el ejemplo:
+
+```python
+columns=['County', 'Population']
+```
+
+Indica que:
+
+- `County` contiene los identificadores de los condados.
+- `Population` contiene los valores estadísticos que se representarán.
+
+Por otro lado:
+
+```python
+key_on='feature.id'
+```
+
+Indica dónde se encuentra el identificador correspondiente dentro de la estructura GeoJSON.
+
+La relación es:
+
+```text
+DataFrame:
+County  <-->  Population
+
+GeoJSON:
+feature.id  <-->  feature.geometry
+```
+
+Cada condado debe poder relacionarse correctamente con su geometría y su valor de población.
+
+**Concepto fundamental:** si los identificadores no coinciden entre el GeoJSON y el DataFrame, el mapa coroplético no podrá asociar correctamente los valores a las regiones.
+
+---
+
+# 15. Mapas de calor (Heat Maps)
+
+Un mapa de calor permite representar la concentración o intensidad de determinados fenómenos geográficos.
+
+En lugar de representar cada ubicación únicamente mediante un marcador independiente, se utiliza una representación visual basada en la intensidad de los datos.
+
+Los mapas de calor son especialmente útiles para identificar:
+
+- Concentraciones de población.
+- Zonas con mayor actividad.
+- Distribución de eventos.
+- Concentración de puntos geográficos.
+- Áreas de mayor intensidad de una variable.
+
+En Folium se utiliza:
+
+```python
+plugins.HeatMap()
+```
+
+## 15.1. Estructura de los datos
+
+El plugin `HeatMap` recibe una lista de puntos geográficos.
+
+Cada punto puede contener tres valores:
+
+```python
+[latitude, longitude, intensity]
+```
+
+Donde:
+
+- `latitude`: latitud del punto.
+- `longitude`: longitud del punto.
+- `intensity`: intensidad asociada a la ubicación.
+
+El tercer valor permite representar diferencias de magnitud entre los puntos.
+
+## 15.2. Obtener coordenadas mediante Geocoder
+
+En el ejemplo del notebook se obtienen las coordenadas de diferentes ciudades estadounidenses.
+
+```python
+new_york_city = geocoder.osm(
+    'New York City, New York'
+)
+
+los_angeles = geocoder.osm(
+    'Los Angeles, California'
+)
+
+chicago = geocoder.osm(
+    'Chicago, Illinois'
+)
+
+houston = geocoder.osm(
+    'Houston, Texas'
+)
+```
+
+El mismo procedimiento se utiliza para otras ciudades.
+
+## 15.3. Crear puntos con intensidad
+
+En el notebook se utiliza la población de cada ciudad como intensidad.
+
+Por ejemplo:
+
+```python
+new_york_city_latlng = [
+    new_york_city.lat,
+    new_york_city.lng,
+    8398748 / 1000
+]
+```
+
+La población se divide entre 1.000 para reducir la magnitud de los valores y facilitar la visualización de los puntos de calor.
+
+Se aplica el mismo procedimiento a las demás ciudades.
+
+Posteriormente se agrupan los puntos en una lista:
+
+```python
+large_cities = [
+    new_york_city_latlng,
+    los_angeles_latlng,
+    chicago_latlng,
+    houston_latlng,
+    phoenix_latlng,
+    philadelphia_latlng,
+    san_antonio_latlng,
+    san_diego_latlng,
+    dallas_latlng,
+    san_jose_latlng
+]
+```
+
+## 15.4. Crear el mapa de calor
+
+```python
+map_heatmap = folium.Map(
+    [40, -99],
+    tiles='CartoDB Positron',
+    zoom_start=4
+)
+
+plugins.HeatMap(
+    large_cities
+).add_to(map_heatmap)
+
+map_heatmap
+```
+
+**Concepto importante:** los mapas de calor permiten representar visualmente la intensidad de una variable asociada a diferentes coordenadas geográficas.
+
+---
+
+# 16. Mapas de calor temporales (HeatMapWithTime)
+
+Folium también permite representar mapas de calor que evolucionan a lo largo del tiempo.
+
+Para ello se utiliza:
+
+```python
+plugins.HeatMapWithTime()
+```
+
+Esta herramienta permite visualizar cómo cambia la distribución espacial de los datos en diferentes instantes temporales.
+
+## 16.1. Estructura de los datos
+
+A diferencia del mapa de calor convencional, el mapa temporal necesita una estructura de datos organizada por periodos.
+
+El formato utilizado en el notebook es:
+
+```text
+[
+    [
+        [latitude, longitude],
+        [latitude, longitude],
+        ...
+    ],
+    [
+        [latitude, longitude],
+        [latitude, longitude],
+        ...
+    ],
+    ...
+]
+```
+
+Cada bloque representa un periodo temporal y contiene las coordenadas de los puntos correspondientes a ese periodo.
+
+En términos generales:
+
+```python
+[
+    datos_periodo_1,
+    datos_periodo_2,
+    datos_periodo_3
+]
+```
+
+## 16.2. Generar datos de ejemplo
+
+El notebook utiliza NumPy para generar datos aleatorios:
+
+```python
+heatmap_time_data = (
+    np.random.random((100, 20, 2))
+    + np.array([[39, -98]])
+).tolist()
+```
+
+La estructura generada contiene:
+
+- 100 periodos.
+- 20 puntos por periodo.
+- 2 coordenadas por punto.
+
+Las coordenadas se generan alrededor de una ubicación de referencia.
+
+El método `tolist()` convierte la estructura de NumPy en listas de Python.
+
+## 16.3. Crear fechas asociadas a los datos
+
+Para representar los diferentes periodos se genera una lista de fechas:
+
+```python
+heatmap_time_dates = [
+    d.strftime('%Y-%m-%d')
+    for d in pd.date_range(
+        '20160101',
+        periods=len(heatmap_time_data)
+    )
+]
+```
+
+En este ejemplo:
+
+- `pd.date_range()` genera una secuencia de fechas.
+- `periods` determina el número de fechas.
+- `strftime('%Y-%m-%d')` transforma cada fecha en una cadena con formato año-mes-día.
+
+Cada conjunto de datos queda asociado a una fecha.
+
+## 16.4. Crear el mapa temporal
+
+```python
+map_heatmap_time = folium.Map(
+    [39, -98],
+    tiles='CartoDB Dark_Matter',
+    zoom_start=6
+)
+
+heatmap_time_plugin = plugins.HeatMapWithTime(
+    heatmap_time_data,
+    index=heatmap_time_dates
+)
+
+heatmap_time_plugin.add_to(
+    map_heatmap_time
+)
+
+map_heatmap_time
+```
+
+El parámetro `index` permite proporcionar las fechas correspondientes a cada conjunto de datos.
+
+**Concepto importante:** `HeatMapWithTime` amplía los mapas de calor tradicionales incorporando una dimensión temporal que permite observar la evolución de los fenómenos geográficos.
+
+---
+
+# 17. Herramienta de coordenadas geográficas (Latitude and Longitude Tool)
+
+Folium permite incorporar una herramienta que muestra las coordenadas geográficas de una ubicación al hacer clic sobre el mapa.
+
+Para ello se utiliza:
+
+```python
+folium.LatLngPopup()
+```
+
+### Ejemplo
+
+```python
+map_lat_long = folium.Map(
+    location=[38, -98],
+    zoom_start=4
+)
+
+map_lat_long.add_child(
+    folium.LatLngPopup()
+)
+
+map_lat_long
+```
+
+Al hacer clic sobre cualquier punto del mapa se muestran sus coordenadas:
+
+- Latitud.
+- Longitud.
+
+**Utilidad:** esta herramienta permite identificar las coordenadas exactas de una ubicación sin tener que introducirlas manualmente.
+
+---
+
+# 18. Herramienta de medición (Measure Control)
+
+Folium incorpora un plugin que permite medir distancias directamente sobre el mapa.
+
+Se utiliza:
+
+```python
+plugins.MeasureControl()
+```
+
+Esta herramienta permite seleccionar puntos sobre el mapa y calcular distancias entre ellos.
+
+## Parámetros principales
+
+| Parámetro | Descripción |
+|---|---|
+| `position` | Posición del control en el mapa. |
+| `active_color` | Color utilizado durante la medición activa. |
+| `completed_color` | Color de la medición finalizada. |
+| `primary_length_unit` | Unidad principal de longitud. |
+
+## Ejemplo
+
+```python
+map_measure = folium.Map(
+    [40, -100],
+    zoom_start=4
+)
+
+measure_control = plugins.MeasureControl(
+    position='topleft',
+    active_color='red',
+    completed_color='red',
+    primary_length_unit='meters'
+)
+
+map_measure.add_child(
+    measure_control
+)
+
+map_measure
+```
+
+En este ejemplo:
+
+- El control aparece en la esquina superior izquierda.
+- Las mediciones utilizan el color rojo.
+- La unidad principal de longitud es el metro.
+
+**Concepto importante:** MeasureControl permite calcular distancias geográficas de manera interactiva directamente sobre el mapa.
+
+---
+
+# 19. Mapas dobles (Dual Map)
+
+Folium dispone de un plugin que permite visualizar dos mapas simultáneamente.
+
+Se utiliza:
+
+```python
+plugins.DualMap()
+```
+
+Esta herramienta resulta especialmente útil para comparar diferentes representaciones cartográficas de una misma zona.
+
+Por ejemplo:
+
+- Comparar diferentes estilos de mapas.
+- Comparar distintas capas cartográficas.
+- Analizar diferencias entre representaciones del territorio.
+
+## Ejemplo
+
+```python
+map_dual = plugins.DualMap(
+    location=[40, -98],
+    tiles=None,
+    zoom_start=4
+)
+```
+
+Se establece:
+
+- `location`: centro geográfico de los mapas.
+- `tiles=None`: permite añadir posteriormente las capas cartográficas deseadas.
+- `zoom_start`: nivel de zoom inicial.
+
+## Añadir diferentes capas
+
+```python
+folium.TileLayer(
+    'Stamen Terrain'
+).add_to(map_dual)
+
+folium.TileLayer(
+    'CartoDB Positron'
+).add_to(map_dual)
+```
+
+Cada mapa puede utilizar una representación cartográfica diferente.
+
+## Añadir controles
+
+```python
+folium.LayerControl().add_to(map_dual)
+```
+
+Finalmente:
+
+```python
+map_dual
+```
+
+**Concepto importante:** DualMap permite comparar visualmente dos mapas de manera simultánea, facilitando el análisis de diferentes representaciones geográficas.
+
+---
+
+# 20. Herramientas de dibujo (Draw)
+
+Folium permite incorporar herramientas interactivas para dibujar elementos geográficos directamente sobre un mapa.
+
+Para ello se utiliza:
+
+```python
+plugins.Draw()
+```
+
+Estas herramientas permiten dibujar geometrías sobre el mapa y, mediante la configuración adecuada, exportarlas en formato GeoJSON.
+
+## Ejemplo
+
+```python
+map_draw = folium.Map(
+    location=[40, -99],
+    zoom_start=4
+)
+
+draw = plugins.Draw(
+    export=True
+)
+
+draw.add_to(map_draw)
+
+map_draw
+```
+
+## Parámetro export
+
+El parámetro:
+
+```python
+export=True
+```
+
+permite habilitar la exportación de las geometrías dibujadas como un archivo GeoJSON.
+
+## Utilidad de Draw
+
+Esta herramienta permite:
+
+- Dibujar elementos geográficos.
+- Crear geometrías directamente sobre el mapa.
+- Obtener información geográfica personalizada.
+- Exportar las geometrías dibujadas.
+- Crear archivos GeoJSON que posteriormente pueden incorporarse a otros mapas.
+
+**Concepto importante:** Draw permite generar información geográfica propia de manera interactiva, sin necesidad de crear manualmente los archivos GeoJSON.
+
+---
+
+# 21. Superposición de imágenes (Overlay Image)
+
+Folium permite incorporar imágenes sobre un mapa geográfico mediante la clase:
+
+```python
+folium.raster_layers.ImageOverlay()
+```
+
+Esta funcionalidad permite representar imágenes asociadas a una zona geográfica concreta.
+
+La imagen se posiciona dentro de unos límites geográficos definidos mediante coordenadas.
+
+## Parámetros principales
+
+| Parámetro | Descripción |
+|---|---|
+| `name` | Nombre de la capa de imagen. |
+| `image` | Ruta de la imagen que se quiere incorporar. |
+| `bounds` | Límites geográficos que determinan dónde se sitúa la imagen. |
+| `opacity` | Nivel de transparencia de la imagen. |
+
+## Límites geográficos (Bounds)
+
+El parámetro `bounds` define el área geográfica donde se superpone la imagen.
+
+La estructura utilizada es:
+
+```python
+bounds=[
+    [lat_min, lon_min],
+    [lat_max, lon_max]
+]
+```
+
+Donde:
+
+- `lat_min`: latitud mínima.
+- `lon_min`: longitud mínima.
+- `lat_max`: latitud máxima.
+- `lon_max`: longitud máxima.
+
+## Ejemplo
+
+```python
+map_img_overlay = folium.Map(
+    [2, 22],
+    zoom_start=3,
+    tiles='CartoDB Positron'
+)
+
+img_overlay = folium.raster_layers.ImageOverlay(
+    name='flags of Africa',
+    image='data/flags_of_africa.png',
+    bounds=[
+        [-38, -28],
+        [40, 60]
+    ],
+    opacity=0.5
+)
+
+img_overlay.add_to(map_img_overlay)
+
+folium.LayerControl().add_to(
+    map_img_overlay
+)
+
+map_img_overlay
+```
+
+En este ejemplo se superpone una imagen con las banderas de los países africanos.
+
+La transparencia se establece mediante:
+
+```python
+opacity=0.5
+```
+
+Esto permite visualizar simultáneamente la imagen y el mapa de fondo.
+
+**Concepto importante:** ImageOverlay permite posicionar imágenes dentro de unos límites geográficos concretos, integrándolas como capas dentro de un mapa interactivo.
+
+---
+
+# 22. Mapas coropléticos de España (Spain Choropleth)
+
+El último apartado del notebook aplica los conocimientos de mapas coropléticos a un conjunto de datos de España.
+
+El objetivo es representar el número total de fallecimientos por comunidad autónoma.
+
+Se utilizan dos fuentes de información:
+
+- `decesos_espania.csv`: contiene los datos estadísticos.
+- `provincias-espanolas 2.0.geojson`: contiene la información geográfica de las comunidades autónomas.
+
+## 22.1. Cargar los datos
+
+Se utiliza Pandas para importar el archivo CSV:
+
+```python
+import pandas as pd
+
+data_total_mean = pd.read_csv(
+    'data/decesos_espania.csv',
+    sep=';'
+)
+```
+
+El parámetro:
+
+```python
+sep=';'
+```
+
+indica que el separador de las columnas del archivo CSV es el punto y coma.
+
+## 22.2. Crear el mapa inicial
+
+```python
+m = folium.Map(
+    location=[42.1257, -8],
+    zoom_start=5
+)
+```
+
+Se establece el centro geográfico del mapa y su nivel de zoom inicial.
+
+## 22.3. Añadir diferentes capas cartográficas
+
+El notebook incorpora diferentes tipos de mapas de fondo:
+
+```python
+tiles = [
+    'stamenwatercolor',
+    'cartodbpositron',
+    'openstreetmap',
+    'stamenterrain'
+]
+
+for tile in tiles:
+
+    folium.TileLayer(tile).add_to(m)
+```
+
+Esto permite disponer de diferentes estilos cartográficos que pueden seleccionarse mediante el control de capas.
+
+## 22.4. Crear el mapa coroplético
+
+Se utiliza el método:
+
+```python
+m.choropleth()
+```
+
+### Ejemplo completo
+
+```python
+m.choropleth(
+    geo_data='data/provincias-espanolas 2.0.geojson',
+    name='choropleth',
+    data=data_total_mean,
+    columns=[
+        'Comunidad Autónoma',
+        'Todas las causas'
+    ],
+    key_on='feature.properties.ccaa',
+    fill_color='BuPu',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name='Decesos por comunidad autonoma'
+)
+
+folium.LayerControl().add_to(m)
+
+m
+```
+
+## 22.5. Relación entre los datos y el GeoJSON
+
+Este ejemplo sigue el mismo principio utilizado en el mapa coroplético de Indiana.
+
+La relación se establece mediante:
+
+```python
+columns=[
+    'Comunidad Autónoma',
+    'Todas las causas'
+]
+```
+
+Donde:
+
+- `Comunidad Autónoma`: identifica cada territorio.
+- `Todas las causas`: contiene el valor estadístico que se representará.
+
+Por otro lado:
+
+```python
+key_on='feature.properties.ccaa'
+```
+
+Indica que la identificación de cada territorio se encuentra en la propiedad `ccaa` de las entidades del GeoJSON.
+
+Por tanto, se establece una correspondencia entre:
+
+```text
+CSV:
+Comunidad Autónoma
+        |
+        v
+Valor estadístico:
+Todas las causas
+
+GEOJSON:
+feature.properties.ccaa
+        |
+        v
+Geometría de la comunidad autónoma
+```
+
+## 22.6. Personalización visual
+
+En este ejemplo se utiliza:
+
+```python
+fill_color='BuPu'
+```
+
+Esta paleta utiliza tonalidades azules y púrpuras.
+
+También se establecen:
+
+```python
+fill_opacity=0.7
+line_opacity=0.2
+```
+
+Que controlan respectivamente la opacidad del relleno y de las líneas de separación.
+
+La leyenda se define mediante:
+
+```python
+legend_name='Decesos por comunidad autonoma'
+```
+
+**Concepto importante:** este último ejercicio demuestra cómo aplicar los mapas coropléticos a datos estadísticos reales, relacionando información territorial de un GeoJSON con valores almacenados en un CSV.
+
+---
+
+# 23. Archivos de datos utilizados en el notebook
+
+El notebook utiliza diferentes archivos externos para construir las representaciones geográficas.
+
+| Archivo | Formato | Utilidad |
+|---|---|---|
+| `indiana_outline_map.geojson` | GeoJSON | Representación del contorno geográfico de Indiana. |
+| `sales_region1.geojson` | GeoJSON | Información geográfica de la región comercial 1. |
+| `sales_region2.geojson` | GeoJSON | Información geográfica de la región comercial 2. |
+| `sales_region3.geojson` | GeoJSON | Información geográfica de la región comercial 3. |
+| `geojson_indianacounties.geojson` | GeoJSON | Geometrías de los condados de Indiana. |
+| `indiana_population_by_county.csv` | CSV | Datos de población por condado de Indiana. |
+| `flags_of_africa.png` | PNG | Imagen de las banderas de los países africanos. |
+| `decesos_espania.csv` | CSV | Datos estadísticos de fallecimientos en España. |
+| `provincias-espanolas 2.0.geojson` | GeoJSON | Información geográfica utilizada para representar los datos por comunidad autónoma. |
+
+## Formatos geográficos y estadísticos
+
+### GeoJSON
+
+Formato utilizado para almacenar información geográfica estructurada.
+
+Permite representar geometrías y propiedades asociadas a diferentes elementos territoriales.
+
+### CSV
+
+Formato de texto utilizado para almacenar información tabular.
+
+En este notebook se utiliza para guardar datos estadísticos asociados a territorios.
+
+### PNG
+
+Formato de imagen utilizado para incorporar elementos gráficos sobre un mapa mediante `ImageOverlay`.
+
+---
+
+# 24. Resumen de las principales clases y funciones de Folium
+
+La siguiente tabla recoge las principales clases y métodos utilizados a lo largo del notebook.
+
+| Clase o función | Utilidad |
+|---|---|
+| `folium.Map()` | Crear un mapa interactivo. |
+| `map.save()` | Guardar un mapa como archivo HTML. |
+| `folium.TileLayer()` | Añadir capas cartográficas. |
+| `folium.LayerControl()` | Incorporar controles para activar y desactivar capas. |
+| `plugins.MiniMap()` | Incorporar un minimapa. |
+| `plugins.Fullscreen()` | Permitir visualizar el mapa a pantalla completa. |
+| `folium.Marker()` | Añadir marcadores geográficos. |
+| `folium.Icon()` | Personalizar los iconos de los marcadores. |
+| `plugins.BeautifyIcon()` | Crear marcadores personalizados y numerados. |
+| `folium.Circle()` | Crear círculos con radio definido en metros. |
+| `folium.CircleMarker()` | Crear círculos con radio definido en píxeles. |
+| `folium.PolyLine()` | Dibujar líneas que conectan diferentes coordenadas. |
+| `plugins.AntPath()` | Representar rutas mediante líneas animadas. |
+| `folium.GeoJson()` | Incorporar información geográfica GeoJSON. |
+| `folium.FeatureGroup()` | Agrupar elementos geográficos. |
+| `plugins.FeatureGroupSubGroup()` | Crear subgrupos dentro de grupos principales. |
+| `folium.Choropleth()` | Crear mapas coropléticos. |
+| `plugins.HeatMap()` | Crear mapas de calor. |
+| `plugins.HeatMapWithTime()` | Crear mapas de calor temporales. |
+| `folium.LatLngPopup()` | Mostrar coordenadas geográficas al hacer clic. |
+| `plugins.MeasureControl()` | Medir distancias sobre el mapa. |
+| `plugins.DualMap()` | Visualizar dos mapas simultáneamente. |
+| `plugins.Draw()` | Dibujar geometrías sobre un mapa. |
+| `folium.raster_layers.ImageOverlay()` | Superponer imágenes sobre un mapa. |
+
+---
+
+# 25. Conceptos fundamentales que hay que recordar
+
+## 25.1. Coordenadas geográficas
+
+Todas las ubicaciones utilizadas por Folium se representan mediante coordenadas geográficas.
+
+La estructura habitual es:
+
+```python
+[latitude, longitude]
+```
+
+Es fundamental respetar el orden de las coordenadas.
+
+## 25.2. Capas cartográficas
+
+Los mapas pueden incorporar diferentes capas de representación visual.
+
+Se utilizan para cambiar el estilo del mapa de fondo o añadir información geográfica adicional.
+
+La función principal para incorporar capas es:
+
+```python
+folium.TileLayer()
+```
+
+Para gestionar las capas:
+
+```python
+folium.LayerControl()
+```
+
+## 25.3. Marcadores
+
+Los marcadores permiten representar ubicaciones concretas.
+
+Pueden personalizarse mediante iconos, colores, popups y tooltips.
+
+Se pueden crear individualmente o automatizar utilizando DataFrames y diccionarios.
+
+## 25.4. Representación de superficies
+
+Folium permite representar áreas mediante círculos, geometrías GeoJSON e imágenes superpuestas.
+
+Estas funcionalidades permiten pasar de una representación puntual a una representación espacial más compleja.
+
+## 25.5. Datos geográficos y datos estadísticos
+
+Uno de los conceptos más importantes del notebook es la integración de información geográfica con información estadística.
+
+Para construir mapas coropléticos se necesitan:
+
+- Geometrías territoriales almacenadas en GeoJSON.
+- Datos estadísticos almacenados en un DataFrame.
+- Un identificador común que permita relacionar ambas fuentes.
+
+## 25.6. Mapas de calor
+
+Los mapas de calor permiten visualizar la concentración e intensidad de fenómenos geográficos.
+
+Pueden utilizar coordenadas e intensidades para representar diferentes magnitudes.
+
+También pueden incorporar una dimensión temporal.
+
+## 25.7. Plugins
+
+Los plugins amplían las funcionalidades básicas de Folium.
+
+Permiten incorporar herramientas de medición, dibujo, navegación, comparación de mapas y visualización de datos.
+
+---
+
+# 26. Esquema general de trabajo con Folium
+
+El flujo de trabajo habitual para construir un mapa interactivo con Folium puede resumirse en los siguientes pasos:
+
+1. **Importar las librerías necesarias.**
+
+   ```python
+   import folium
+   from folium import plugins
+   import pandas as pd
+   ```
+
+2. **Obtener o preparar los datos geográficos.**
+
+   Los datos pueden proceder de coordenadas conocidas, servicios de geocodificación, archivos GeoJSON o DataFrames.
+
+3. **Crear el mapa inicial.**
+
+   ```python
+   m = folium.Map(
+       location=[latitude, longitude],
+       zoom_start=10
+   )
+   ```
+
+4. **Incorporar las capas cartográficas necesarias.**
+
+   ```python
+   folium.TileLayer(
+       'OpenStreetMap'
+   ).add_to(m)
+   ```
+
+5. **Añadir los elementos geográficos.**
+
+   Según las necesidades del análisis, se pueden incorporar marcadores, rutas, círculos, polígonos, mapas de calor o mapas coropléticos.
+
+6. **Incorporar controles y herramientas interactivas.**
+
+   ```python
+   folium.LayerControl().add_to(m)
+   ```
+
+7. **Visualizar el mapa.**
+
+   ```python
+   m
+   ```
+
+8. **Guardar el resultado.**
+
+   ```python
+   m.save('mapa_interactivo.html')
+   ```
+
+---
+
+# 27. Conclusión
+
+Folium es una herramienta muy versátil para la creación de mapas interactivos utilizando Python.
+
+Su principal potencial reside en la posibilidad de combinar información geográfica con datos estadísticos y representarlos de forma visual mediante mapas dinámicos.
+
+Principales funcionalidades de la librería:
+
+- Creación y personalización de mapas.
+- Selección de diferentes estilos cartográficos.
+- Incorporación de marcadores convencionales y personalizados.
+- Geocodificación de direcciones.
+- Automatización de marcadores utilizando Pandas.
+- Representación de círculos y rutas.
+- Incorporación de archivos GeoJSON.
+- Organización de información geográfica mediante grupos y subgrupos.
+- Creación de mapas coropléticos.
+- Representación de datos mediante mapas de calor.
+- Visualización de mapas de calor temporales.
+- Incorporación de herramientas de coordenadas y medición.
+- Comparación de mapas mediante DualMap.
+- Creación y exportación de geometrías mediante Draw.
+- Superposición de imágenes georreferenciadas.
+
+La combinación de Folium con Pandas, NumPy, Geocoder y GeoJSON permite desarrollar visualizaciones geográficas que facilitan el análisis espacial y la interpretación de datos territoriales.
+
+**La idea fundamental es que Folium permite transformar datos geográficos y estadísticos en mapas interactivos, personalizables y exportables a HTML.**
+
+
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
+
+
