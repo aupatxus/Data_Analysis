@@ -6657,3 +6657,243 @@ La combinación de Folium con Pandas, NumPy, Geocoder y GeoJSON permite desarrol
 
 
 
+# Web Scraping Clásico con Python: `requests` y `BeautifulSoup`
+
+Fundamentos teóricos y prácticos del web scraping clásico utilizando las librerías `requests`, `BeautifulSoup` y `pandas`.
+
+---
+
+## 0. Ética y Legalidad antes de Scrapear
+
+Antes de extraer datos de cualquier sitio web, es fundamental seguir buenas prácticas legales y técnicas:
+
+* **Archivo `robots.txt`**: Revisa siempre este archivo en la raíz del dominio para conocer qué rutas permite o prohíbe rastrear el administrador.
+* **Términos de uso**: Que la información sea públicamente accesible no implica que su extracción o reutilización sea legal.
+* **Respeto al servidor**: Evita saturar la infraestructura del sitio añadiendo pausas entre peticiones (por ejemplo, usando `time.sleep()`).
+* **Protección de datos (RGPD)**: Ten especial precaución si vas a recolectar o almacenar datos de carácter personal.
+* **Uso de APIs**: Si el sitio web ofrece una API oficial, utilízala siempre como primera opción antes de recurrir al scraping.
+
+---
+
+## 1. Descarga de Páginas Web con `requests`
+
+El proceso comienza realizando una petición HTTP `GET` al servidor de destino. Como respuesta, el servidor devuelve tres elementos principales:
+
+1. **Código de estado HTTP**: Indica el resultado de la petición (ej. `200` = OK, `403` = Prohibido, `404` = No existe, `429` = Demasiadas peticiones).
+2. **Cabeceras (*Headers*)**: Metadatos sobre la respuesta, como el tipo de contenido (`text/html`). Es recomendable enviar una cabecera `User-Agent` identificativa en la petición.
+3. **Cuerpo (*Body*)**: El código fuente HTML de la página.
+
+```python
+import requests
+
+url = "https://toscrape.com"
+headers = {"User-Agent": "Mozilla/5.0 (fines educativos)"}
+response = requests.get(url, headers=headers, timeout=10)
+```
+
+---
+
+## 2. Parseo del HTML con `BeautifulSoup`
+
+El texto HTML descargado es una cadena plana que `BeautifulSoup` transforma en un **árbol navegable** (DOM) para facilitar la búsqueda de elementos. Para saber qué etiquetas buscar, se utiliza la herramienta *Inspeccionar* del navegador web.
+
+Existen dos enfoques principales para localizar etiquetas dentro del árbol:
+
+| Método | Sintaxis de ejemplo | Resultado que devuelve |
+| :--- | :--- | :--- |
+| **Métodos nativos (`find`)** | `soup.find("article", class_="product_pod")`<br>`soup.find_all("article", class_="product_pod")` | El primer elemento coincidente o una lista con todos ellos. |
+| **Selectores CSS (`select`)** | `soup.select_one("article.product_pod")`<br>`soup.select("article.product_pod")` | El primer elemento coincidente o una lista con todos ellos. |
+
+> **Nota:** Se recomienda dominar los **selectores CSS** (`select` / `select_one`), ya que ofrecen mayor potencia y son el estándar utilizado en herramientas más avanzadas como Playwright o Crawl4AI.
+
+### Extracción de atributos y texto
+Una vez localizado un elemento, se pueden extraer sus datos mediante:
+* `.text` o `.get_text(strip=True)`: Extrae el texto interior limpiando espacios en blanco innecesarios.
+* `elemento["atributo"]`: Accede al valor de un atributo HTML específico (como `href`, `title` o `class`).
+* `urllib.parse.urljoin(base_url, ruta_relativa)`: Convierte enlaces relativos en URLs absolutas válidas.
+
+---
+
+## 3. Limpieza y Estructuración de Datos
+
+Los datos extraídos directamente del HTML suelen venir en formato texto y con caracteres no deseados (por ejemplo, `'£51.77'` o valoraciones en texto como `'Three'`).
+
+Antes de analizarlos, es necesario limpiarlos y tiparlos correctamente:
+* Eliminar símbolos de moneda y convertir precios a números decimales (`float`).
+* Mapear textos categóricos a valores numéricos mediante diccionarios (ej. `{"One": 1, "Two": 2, ...}`).
+* Convertir indicadores de disponibilidad en valores booleanos (`True` / `False`).
+* Almacenar los registros estructurados en un `DataFrame` de **pandas** para su posterior análisis o exportación a CSV.
+
+---
+
+## 4. Paginación
+
+Para extraer información de múltiples páginas dentro de un catálogo:
+
+1. Se identifica el elemento HTML que contiene el enlace a la página siguiente (por ejemplo, el selector `li.next a`).
+2. Se implementa un bucle `while` que descarga la página actual, extrae los datos y busca el botón "siguiente".
+3. Si el enlace existe, se construye la nueva URL absoluta con `urljoin` y se repite el proceso aplicando una pausa (`time.sleep`).
+4. El bucle finaliza cuando el botón desaparece o se alcanza un límite máximo de páginas definido.
+
+---
+
+## 5. La Limitación Clave: Páginas con JavaScript
+
+Muchas aplicaciones web modernas (desarrolladas con frameworks como React, Vue o Angular) entregan un documento HTML inicialmente vacío. El contenido real se genera dinámicamente ejecutando código JavaScript en el navegador del usuario.
+
+Debido a que `requests` únicamente descarga el HTML estático inicial y **no ejecuta JavaScript**, será incapaz de ver o extraer datos generados de forma dinámica. Para estos escenarios es imprescindible utilizar herramientas que controlen un navegador real (como **Playwright** o **Selenium**).
+
+---
+
+## 6. Pros y Contras de `requests` + `BeautifulSoup`
+
+| Ventajas (Pros) | Desventajas (Contras) |
+| :--- | :--- |
+| **Curva de aprendizaje baja**: Ideal para comprender cómo funcionan HTTP y HTML. | **No ejecuta JavaScript**: Inútil frente a SPAs o sitios con carga dinámica. |
+| **Alto rendimiento y ligereza**: Al no abrir un navegador, consume muy poca RAM y CPU. | **Selectores frágiles**: Cualquier cambio en las clases CSS de la web rompe el código. |
+| **Gran ecosistema**: Amplia documentación y ejemplos disponibles. | **Vulnerable a bloqueos**: Los sistemas anti-bot detectan fácilmente peticiones automatizadas. |
+| **Control total**: Permite gestionar cabeceras, cookies y sesiones al detalle. | **Sin interacción**: No permite hacer clics, rellenar formularios ni hacer *scroll* infinito. |
+| **Ideal para prototipos**: Perfecto para webs estáticas y extracciones puntuales. | **Escalabilidad manual**: Requiere programar manualmente reintentos, colas o asincronía. |
+
+### ¿Cuándo utilizar este enfoque?
+Es la opción recomendada como **primer intento** en cualquier proyecto de extracción, así como para **webs estáticas**, tablas HTML sencillas y **prototipos rápidos** debido a su bajo coste computacional y simplicidad.
+
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
+
+
+
+# Web Scraping Dinámico con Python: `Selenium`
+
+Fundamentos teóricos y prácticos para automatizar navegadores y extraer datos de sitios web dinámicos utilizando **Selenium** en Python.
+
+---
+
+## 1. ¿Qué es Selenium y en qué se diferencia de BeautifulSoup?
+
+Mientras que librerías clásicas como `BeautifulSoup` analizan únicamente el texto fuente HTML estático recibido tras una petición HTTP, **Selenium** controla una instancia real del navegador (con o sin interfaz gráfica).
+
+El navegador interpreta el código fuente (incluyendo JavaScript) y construye el **DOM (*Document Object Model*)**. Esto permite simular interacciones humanas reales (clics, escritura en formularios, navegación) y capturar los cambios dinámicos resultantes en la página.
+
+**Flujo de trabajo en Selenium:**
+`URL` ➔ `Solicitud HTTP` ➔ `HTML + JS` ➔ `Navegador (Selenium)` ➔ `DOM interactivo`
+
+---
+
+## 2. Configuración del Entorno y el Objeto `driver`
+
+Para controlar un navegador mediante programación se requiere un **controlador (*WebDriver*)** específico (por ejemplo, `ChromeDriver` para Google Chrome) que coincida con la versión del navegador instalado (verificable en `chrome://settings/help`).
+
+### Inicialización básica y opciones
+* **`Service` y `ChromeOptions`**: Permiten configurar la ruta del ejecutable del controlador y parámetros del navegador (como el modo `--headless` para ejecutar en segundo plano sin abrir ventana).
+* **`undetected-chromedriver` (`uc`)**: Variante optimizada de ChromeDriver diseñada para evitar bloqueos de sistemas anti-bot que detectan navegadores automatizados.
+* **Objeto `driver`**: Es la instancia principal que representa la sesión del navegador y permite navegar (`driver.get(url)`), retroceder (`driver.back()`) o cerrar la sesión (`driver.quit()`).
+
+```python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+import undetected_chromedriver as uc
+
+# Opción 1: Selenium estándar
+service = Service(executable_path='./chromedriver.exe')
+options = webdriver.ChromeOptions()
+# options.add_argument("--headless") # Ejecución sin interfaz gráfica
+driver = webdriver.Chrome(service=service, options=options)
+
+# Opción 2: Navegador indetectable
+driver = uc.Chrome()
+```
+
+---
+
+## 3. Localización de Elementos en el DOM
+
+Selenium ofrece dos métodos principales sobre el objeto `driver` (o sobre cualquier `WebElement` hijo) para buscar etiquetas:
+* `find_element(By.ESTRATEGIA, "valor")`: Devuelve el **primer** elemento coincidente (lanza una excepción `NoSuchElementException` si no existe).
+* `find_elements(By.ESTRATEGIA, "valor")`: Devuelve una **lista** con todos los elementos que coinciden.
+
+### Estrategias de búsqueda (`By`)
+
+| Estrategia | Ejemplo de uso | Descripción |
+| :--- | :--- | :--- |
+| `By.ID` | `driver.find_element(By.ID, "W0wltc")` | Busca por el atributo único `id` del HTML. |
+| `By.NAME` | `driver.find_element(By.NAME, "q")` | Busca por el atributo `name` (común en formularios). |
+| `By.TAG_NAME` | `driver.find_elements(By.TAG_NAME, "button")` | Busca por el nombre de la etiqueta HTML. |
+| `By.CLASS_NAME` | `driver.find_elements(By.CLASS_NAME, "css-2tkghh")` | Busca por el nombre de una clase CSS. |
+| `By.CSS_SELECTOR` | `driver.find_elements(By.CSS_SELECTOR, "li.item")` | Busca mediante selectores CSS avanzados. |
+| `By.XPATH` | `driver.find_element(By.XPATH, "/html/body/...")` | Busca mediante la ruta jerárquica exacta en el árbol XML/DOM. |
+
+---
+
+## 4. Inspección e Interacción con `WebElement`
+
+Cada elemento localizado es un objeto de tipo `WebElement` que permite tanto leer propiedades como simular acciones del usuario:
+
+### Lectura y captura de datos
+* `.text`: Extrae el texto visible contenido dentro de la etiqueta.
+* `.tag_name`: Devuelve el tipo de etiqueta HTML (ej. `'button'`, `'input'`).
+* `.get_attribute("nombre")`: Obtiene el valor de cualquier atributo del elemento.
+* `.screenshot("archivo.png")`: Guarda una captura de pantalla específica de ese elemento.
+
+### Simulación de acciones
+* `.click()`: Simula un clic del ratón (útil para aceptar/rechazar cookies o abrir enlaces).
+* `.send_keys("texto")`: Escribe texto dentro de un campo de entrada (`<input>`). También permite enviar teclas especiales importando `Keys` (ej. `Keys.ENTER`).
+* `.clear()`: Borra el contenido escrito previamente en un campo de texto.
+* `.submit()`: Envía el formulario asociado al elemento.
+
+---
+
+## 5. Gestión de Tiempos de Espera (Sincronización)
+
+Dado que las páginas dinámicas tardan en cargar elementos mediante JavaScript, intentar interactuar con un elemento antes de que aparezca provocará errores. Existen dos formas de gestionar las esperas:
+
+1. **Esperas estáticas (`time.sleep(segundos)`)**: Detienen la ejecución del código de forma fija. Son sencillas para pruebas rápidas, pero ineficientes en producción.
+2. **Esperas explícitas (`WebDriverWait` + `expected_conditions`)**: Detienen el código *únicamente* hasta que se cumple una condición específica en el DOM (o hasta alcanzar un tiempo máximo de *timeout*), logrando scrapers más rápidos y robustos.
+
+```python
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+wait = WebDriverWait(driver, 15)
+elementos = wait.until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "li.ipc-metadata-list-summary-item"))
+)
+```
+
+---
+
+## 6. Buenas Prácticas y Estructuración del Scraper
+
+* **Manejo de errores (`try / except / finally`)**: Envuelve el flujo principal en un bloque `try...finally` para garantizar que `driver.quit()` se ejecute siempre al finalizar, evitando que queden procesos del navegador abiertos consumiendo memoria RAM. Asimismo, captura excepciones dentro de los bucles para que un fallo puntual en un registro no detenga toda la extracción.
+* **Limpieza y exportación**: Estructura los datos extraídos en diccionarios dentro de una lista para transformarlos posteriormente en un `DataFrame` de **pandas** y exportarlos a CSV (`df.to_csv("datos.csv", index=False, encoding="utf-8-sig")`).
+
+
+
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
+
+
+
+
